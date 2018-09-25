@@ -38,6 +38,8 @@ int main(int argc, char** argv)
 
 
     fd = open(argv[1], O_RDWR | O_NOCTTY );
+    fflush(NULL);
+
     if (fd <0) {perror(argv[1]); exit(-1); }
 
     if ( tcgetattr(fd,&oldtio) == -1) { /* save current port settings */
@@ -60,7 +62,7 @@ int main(int argc, char** argv)
 
   /* 
     VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
-    leitura do(s) próximo(s) caracter(es)
+    leitura do(s) prï¿½ximo(s) caracter(es)
   */
 
 
@@ -76,20 +78,22 @@ int main(int argc, char** argv)
 
     if(gets(buf) == NULL)
     {
-	exit(-1);
+    	exit(-1);
     }
 
     res = write(fd,buf,255);   
+    fflush(NULL);
+
     printf("%d bytes written\n", res);
  
 
   /* 
-    O ciclo FOR e as instruções seguintes devem ser alterados de modo a respeitar 
-    o indicado no guião 
+    O ciclo FOR e as instruï¿½ï¿½es seguintes devem ser alterados de modo a respeitar 
+    o indicado no guiï¿½o 
   */
 
 
-
+    sleep(1);
    
     if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
       perror("tcsetattr");
