@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -21,7 +22,7 @@ int main(int argc, char** argv)
     struct termios oldtio,newtio;
     char buf[255];
 
-    if ( (argc < 2) || 
+    if ( (argc < 2) ||
   	     ((strcmp("/dev/ttyS0", argv[1])!=0))) {
       printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
       exit(1);
@@ -32,9 +33,10 @@ int main(int argc, char** argv)
     Open serial port device for reading and writing and not as controlling tty
     because we don't want to get killed if linenoise sends CTRL-C.
   */
-  
-    
+
+
     fd = open(argv[1], O_RDWR | O_NOCTTY );
+    fflush(NULL);
     if (fd <0) {perror(argv[1]); exit(-1); }
 
     if ( tcgetattr(fd,&oldtio) == -1) { /* save current port settings */
@@ -55,12 +57,10 @@ int main(int argc, char** argv)
 
 
 
-  /* 
-    VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
-    leitura do(s) próximo(s) caracter(es)
+  /*
+    VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a
+    leitura do(s) prï¿½ximo(s) caracter(es)
   */
-
-
 
     tcflush(fd, TCIOFLUSH);
 
@@ -71,20 +71,35 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
+    // int n=0;
+    // while (STOP==FALSE) {       /* loop for input */
+    //   res = read(fd,buf,1);   /* returns after 5 chars have been input */
+    //   if(res==1){
+    //     if (buf[0]=='\0') break;                        /* so we can printf... */
+    //     printf("%d\n", n);
+    //     n++;
+    //
+    //     printf("%c\n", buf[0]);
+    //     }
+    // }
 
+    int i = 0;
     while (STOP==FALSE) {       /* loop for input */
-      res = read(fd,buf,1);   /* returns after 5 chars have been input */
-      buf[res]=0;               /* so we can printf... */
-      printf(":%s:%d\n", buf, res);
-      if (buf[0]=='\0') STOP=TRUE;
-    }
+      res = read(fd,buf + i,1);   /* returns after 5 chars have been input */
+      if(res>0)
+      {
+        if (buf[i]=='\0') STOP=TRUE;
+        i++;
+      }
+}
+
+    printf("%s\n", buf);
 
 
 
-  /* 
-    O ciclo WHILE deve ser alterado de modo a respeitar o indicado no guião 
+  /*
+    O ciclo WHILE deve ser alterado de modo a respeitar o indicado no guiï¿½o
   */
-
 
 
     tcsetattr(fd,TCSANOW,&oldtio);
