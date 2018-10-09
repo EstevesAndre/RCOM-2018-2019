@@ -1,11 +1,3 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include "protocol.h"
 
 #define BAUDRATE B38400
@@ -70,9 +62,7 @@ int main(int argc, char** argv)
 {
     int fd = setup();
 
-    char buf[255];
-
-    if(llopen(fd, SENDER))
+    if(llopen(fd, SENDER) == 0)
     {
       printf("Connected\n");
     }

@@ -72,7 +72,7 @@ int read_message(int fd, char buf[])
 
     while(state != END)
     {
-        res = read(fd,c,1);
+        res = read(fd,&c,1);
         
         if(res > 0)
         {
@@ -141,7 +141,7 @@ int write_message(int fd, char buf[])
     	return -2;
     }
 
-    int res = write(fd,buf,255);   
+    write(fd,buf,255);   
     fflush(NULL);
 
     sleep(1);
@@ -157,7 +157,7 @@ char parseMessage(char buf[])
     if(buf[1] != A_SENDER && buf[1] != A_RECEIVER)
         return ERROR;
     
-    if(buf[2] ^ buf[1] != buf[3])
+    if((buf[2] ^ buf[1]) != buf[3])
         return ERROR;
 
     if(buf[2] == C_DISC || buf[2] == C_SET || buf[2] == C_UA)
