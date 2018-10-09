@@ -22,11 +22,11 @@
 #define MESSAGE 2
 #define END 3
 
-int flag = 1;
+int alarm_flag = 1;
 
 void attend()
 {
-    flag = 1;
+    alarm_flag = 1;
 }
 
 int llopen_Receiver(int fd)
@@ -34,7 +34,16 @@ int llopen_Receiver(int fd)
     char BCC1 = A_SENDER ^ C_UA;
     char ua[5] = {FLAG, A_SENDER, C_UA, BCC1, FLAG};
 
-    // ler SET //
+    alarm_flag = 0;
+
+    char buf[255];
+    
+    while(1)
+    {
+        if(read_message(fd, buf) == 0) break;
+    }
+
+    // analisar sender info
 
     write_message(fd, ua);
 
@@ -54,44 +63,76 @@ int llopen_Sender(int fd)
     while(cnt < 3)
     {
         alarm(3);
-        flag = 0;
+        alarm_flag = 0;
         
-        write_message(fd, buf);
-        // ler UA //
+        write_message(fd, set);
+        if(read_message(fd, buf) == 0) break;
 
         cnt++;
     }
 
+    if(cnt == 3)
+        return 2; //no confirmation recieved
+
+    // analisar receiver info
 
     
 
 }
 
-int read_message(int fd, char buf[], int f)
+int read_message(int fd, char buf[])
 {
     int state = BEGIN;
+    int pos = 0;
+
+    int res;
+    char c;
 
     while(state != END)
     {
-        if(FLAG != f) return -3;
-
-        switch(state)
+        res = read(fd,c,1);
+        
+        if(res > 0)
         {
-            case BEGIN: 
+            switch(state)
             {
-                
-                break;
+                case BEGIN: 
+                {
+                    if(c == FLAG)
+                    {
+                        buf[pos] = c;
+                        pos++;
+                        state = START_MESSAGE;
+                    }                    
+                    break;
+                }
+                case START_MESSAGE:
+                {                    
+                    if(c != FLAG)
+                    {
+                        buf[pos] = c;
+                        pos++;
+                        state = MESSAGE;
+                    }
+                    break;
+                }            
+                case MESSAGE:
+                {
+                    if(c == FLAG)
+                    {
+                        buf[pos] = c;
+                        pos++;
+                        state = END;
+                    }
+                    break;
+                }
+                default: state = END;
             }
-            case START_MESSAGE:
-            {
-                break;
-            }            
-            case MESSAGE:
-            {
-                break;
-            }
-            default: state = END;
         }
+
+        if(alarm_flag == 1)
+            return 1;
+
     }
 
     return 0;
