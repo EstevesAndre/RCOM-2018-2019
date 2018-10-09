@@ -1,26 +1,4 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <signal.h>
-
-#define FLAG 0x7E
-#define A_SENDER 0x03
-#define C_SET 0x03
-#define C_DISC 0x0B
-#define C_UA 0x07
-
-#define SENDER 0
-#define RECEIVER 1
-
-#define BEGIN 0
-#define START_MESSAGE 1
-#define MESSAGE 2
-#define END 3
+#include "protocol.h"
 
 int alarm_flag = 1;
 
@@ -44,10 +22,13 @@ int llopen_Receiver(int fd)
     }
 
     // analisar sender info
-
-    write_message(fd, ua);
-
-    return 0;
+    if(parseMessage(buf) == C_SET)
+    {
+        write_message(fd, ua);
+        return 0;
+    }
+    else 
+        return -5;
 }
 
 int llopen_Sender(int fd)
@@ -75,9 +56,10 @@ int llopen_Sender(int fd)
         return 2; //no confirmation recieved
 
     // analisar receiver info
-
-    
-
+    if(parseMessage(buf) == C_UA)
+        return 0;
+    else 
+        return -6;
 }
 
 int read_message(int fd, char buf[])
@@ -165,4 +147,26 @@ int write_message(int fd, char buf[])
     sleep(1);
 
     return 0;
+}
+
+char parseMessage(char buf[])
+{
+    if(buf[0] != FLAG)
+        return ERROR;
+
+    if(buf[1] != A_SENDER && buf[1] != A_RECEIVER)
+        return ERROR;
+    
+    if(buf[2] ^ buf[1] != buf[3])
+        return ERROR;
+
+    if(buf[2] == C_DISC || buf[2] == C_SET || buf[2] == C_UA)
+    {
+        if(buf[4] == FLAG)
+            return buf[2];
+        else
+            return ERROR;
+    }
+
+    return ERROR;    
 }

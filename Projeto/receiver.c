@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 
     char buf[255];
 
-    if(llopen(fd, SENDER))
+    if(llopen(fd, RECEIVER))
     {
       printf("Connected\n");
     }
