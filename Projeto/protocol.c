@@ -84,6 +84,7 @@ int read_message(int fd, char buf[])
         switch(state)
         {
             case BEGIN: 
+			{
                 if(c == FLAG)
                 {
                     buf[pos] = c;
@@ -91,6 +92,7 @@ int read_message(int fd, char buf[])
                     state = START_MESSAGE;
                 }                    
                 break;
+			}
             case START_MESSAGE:
             {                    
                 if(c != FLAG)
@@ -103,16 +105,16 @@ int read_message(int fd, char buf[])
             }            
             case MESSAGE:
             {
+				buf[pos] = c;
+                pos++;
                 if(c == FLAG)
-                {
-                    buf[pos] = c;
-                    pos++;
+                {                    
                     state = END;
                 }
                 break;
             }
             default: state = END;
-        }        
+        }      
     }
 
     if(alarm_flag == 1)
@@ -137,7 +139,8 @@ int llopen(int fd, int flag)
 
 int write_message(int fd, char buf[])
 {    
-    write(fd, buf, 5);
+
+    write(fd, buf, strlen(buf));
     
     sleep(1);
     
