@@ -10,7 +10,7 @@ void attend()
 int llopen_Receiver(int fd)
 { 
     char BCC1 = A_SENDER ^ C_UA;
-    char ua[5] = {FLAG, A_SENDER, C_UA, BCC1, FLAG};
+    char ua[6] = {FLAG, A_SENDER, C_UA, BCC1, FLAG, '\0'};
 
     alarm_flag = 0;
 
@@ -33,11 +33,10 @@ int llopen_Receiver(int fd)
 
 int llopen_Sender(int fd)
 {
-    printf("llopen_Sender initiated\n");
     (void) signal(SIGALRM, attend);
 
     char BCC1 = A_SENDER ^ C_SET;
-    char set[5] = {FLAG, A_SENDER, C_SET, BCC1, FLAG};
+    char set[6] = {FLAG, A_SENDER, C_SET, BCC1, FLAG, '\0'};
 
     int cnt = 0;
     char buf[255];
@@ -56,26 +55,22 @@ int llopen_Sender(int fd)
 
     if(cnt == 3)
     {        
-        printf("llopen_Sender finished\n");
         return 2; //no confirmation recieved
     }
 
     // analisar receiver info
     if(parseMessage(buf) == C_UA)
     {        
-        printf("llopen_Sender finished\n");
         return 0;
     }
     else
     {          
-        printf("llopen_Sender finished\n");
         return -6;
     }
 }
 
 int read_message(int fd, char buf[])
 {
-    printf("started reading message\n");
     int state = BEGIN;
     int pos = 0;
 
@@ -119,8 +114,6 @@ int read_message(int fd, char buf[])
             default: state = END;
         }        
     }
-    
-    printf("finished reading message\n");
 
     if(alarm_flag == 1)
         return 1;
@@ -144,12 +137,7 @@ int llopen(int fd, int flag)
 
 int write_message(int fd, char buf[])
 {    
-    
-    if(gets(buf) == NULL) 
-        return -2;
-
     write(fd, buf, 5);
-    printf("SENT CONTROL MESSAGE\n");
     
     sleep(1);
     
