@@ -33,9 +33,9 @@ int llopen_Receiver(int fd)
 
 int llopen_Sender(int fd)
 {
+    printf("llopen_Sender initiated\n");
     (void) signal(SIGALRM, attend);
 
-    char BCC1 = A_SENDER ^ C_SET;
     char set[5] = {FLAG, A_SENDER, C_SET, BCC1, FLAG};
 
     int cnt = 0;
@@ -47,75 +47,82 @@ int llopen_Sender(int fd)
         alarm_flag = 0;
         
         write_message(fd, set);
+
         if(read_message(fd, buf) == 0) break;
 
         cnt++;
     }
 
-    if(cnt == 3)
+    if(cnt == 3)´
+    {        
+        printf("llopen_Sender finished\n");
         return 2; //no confirmation recieved
+    }
 
     // analisar receiver info
     if(parseMessage(buf) == C_UA)
+    {        
+        printf("llopen_Sender finished\n");
         return 0;
-    else 
+    }
+    else
+    {          
+        printf("llopen_Sender finished\n");
         return -6;
+    }
 }
 
 int read_message(int fd, char buf[])
 {
+    printf("started reading message\n");
     int state = BEGIN;
     int pos = 0;
 
     int res;
     char c;
 
-    while(state != END)
+    while(alarmflag != 1 && state != END)
     {
         res = read(fd,&c,1);
         
-        if(res > 0)
+        switch(state)
         {
-            switch(state)
+            case BEGIN: 
+                if(c == FLAG)
+                {
+                    buf[pos] = c;
+                    pos++;
+                    state = START_MESSAGE;
+                }                    
+                break;
+            case START_MESSAGE:
+            {                    
+                if(c != FLAG)
+                {
+                    buf[pos] = c;
+                    pos++;
+                    state = MESSAGE;
+                }
+                break;
+            }            
+            case MESSAGE:
             {
-                case BEGIN: 
+                if(c == FLAG)
                 {
-                    if(c == FLAG)
-                    {
-                        buf[pos] = c;
-                        pos++;
-                        state = START_MESSAGE;
-                    }                    
-                    break;
+                    buf[pos] = c;
+                    pos++;
+                    state = END;
                 }
-                case START_MESSAGE:
-                {                    
-                    if(c != FLAG)
-                    {
-                        buf[pos] = c;
-                        pos++;
-                        state = MESSAGE;
-                    }
-                    break;
-                }            
-                case MESSAGE:
-                {
-                    if(c == FLAG)
-                    {
-                        buf[pos] = c;
-                        pos++;
-                        state = END;
-                    }
-                    break;
-                }
-                default: state = END;
+                break;
             }
-        }
-
-        if(alarm_flag == 1)
-            return 1;
-
+            default: state = END;
+        }        
     }
+    
+    printf("finished reading message\n");
+
+    if(alarm_flag == 1)
+        return 1;
 
     return 0;
 }
@@ -136,16 +143,15 @@ int llopen(int fd, int flag)
 
 int write_message(int fd, char buf[])
 {    
-    if(gets(buf) == NULL)
-    {
-    	return -2;
-    }
+    
+    if(gets(buf) == NULL) 
+        return -2;
 
-    write(fd,buf,255);   
-    fflush(NULL);
-
+    write(fd, buf, 5);
+    printf("SENT CONTROL MESSAGE\n");
+    
     sleep(1);
-
+    
     return 0;
 }
 
@@ -169,4 +175,15 @@ char parseMessage(char buf[])
     }
 
     return ERROR;    
+}
+
+unsigned char calculateBBC2(unsigned char *message, int size)
+{
+    unsigned char bcc2 = message[0];
+    int i;
+    for(i = 1; i < size; i++)
+    {
+        bcc2 ^= message.at(i);
+    }
+    return bcc2;
 }

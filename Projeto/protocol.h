@@ -14,6 +14,7 @@
 #define A_SENDER 0x03
 #define A_RECEIVER 0x01
 #define C_SET 0x03
+#define BCC1 (A_SENDER ^ C_SET)
 #define C_DISC 0x0B
 #define C_UA 0x07
 #define ERROR 0xFF
