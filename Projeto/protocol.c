@@ -24,7 +24,7 @@ int llopen_Receiver(int fd)
     // analisar sender info
     if(parseMessage(buf) == C_SET)
     {
-        write_message(fd, ua);
+        write_message(fd, ua, 5);
         return 0;
     }
     else 
@@ -46,7 +46,7 @@ int llopen_Sender(int fd)
         alarm(3);
         alarm_flag = 0;
         
-        write_message(fd, set);
+        write_message(fd, set, 5);
 
         if(read_message(fd, buf) == 0) break;
 
@@ -81,40 +81,43 @@ int read_message(int fd, char buf[])
     {
         res = read(fd,&c,1);
         
-        switch(state)
-        {
-            case BEGIN: 
-			{
-                if(c == FLAG)
-                {
-                    buf[pos] = c;
-                    pos++;
-                    state = START_MESSAGE;
-                }                    
-                break;
-			}
-            case START_MESSAGE:
-            {                    
-                if(c != FLAG)
-                {
-                    buf[pos] = c;
-                    pos++;
-                    state = MESSAGE;
-                }
-                break;
-            }            
-            case MESSAGE:
-            {
-				buf[pos] = c;
-                pos++;
-                if(c == FLAG)
-                {                    
-                    state = END;
-                }
-                break;
-            }
-            default: state = END;
-        }      
+		if(res > 0)
+		{
+		    switch(state)
+		    {
+		        case BEGIN: 
+				{
+		            if(c == FLAG)
+		            {
+		                buf[pos] = c;
+		                pos++;
+		                state = START_MESSAGE;
+		            }                    
+		            break;
+				}
+		        case START_MESSAGE:
+		        {                    
+		            if(c != FLAG)
+		            {
+		                buf[pos] = c;
+		                pos++;
+		                state = MESSAGE;
+		            }
+		            break;
+		        }            
+		        case MESSAGE:
+		        {
+					buf[pos] = c;
+		            pos++;
+		            if(c == FLAG)
+		            {                    
+		                state = END;
+		            }
+		            break;
+		        }
+		        default: state = END;
+		    }    
+		}		 
     }
 
     if(alarm_flag == 1)
@@ -137,10 +140,10 @@ int llopen(int fd, int flag)
     return -1;
 }
 
-int write_message(int fd, char buf[])
+int write_message(int fd, char buf[], int size)
 {    
 
-    write(fd, buf, strlen(buf));
+    write(fd, buf, size);
     
     sleep(1);
     

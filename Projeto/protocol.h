@@ -36,6 +36,6 @@ int read_message(int fd, char buf[]);
 
 int llopen(int fd, int flag);
 
-int write_message(int fd, char buf[]);
+int write_message(int fd, char buf[], int size);
 
 char parseMessage(char buf[]);
