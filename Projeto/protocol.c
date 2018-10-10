@@ -183,7 +183,7 @@ unsigned char calculateBBC2(unsigned char *message, int size)
     int i;
     for(i = 1; i < size; i++)
     {
-        bcc2 ^= message.at(i);
+        bcc2 ^= message[i];
     }
     return bcc2;
 }
