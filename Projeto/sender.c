@@ -80,6 +80,61 @@ char *readFile(char* filename, off_t *sizeFile)
     return fileContent;
 }
 
+char* controlPackage(char c2, const char* filename, const off_t sizeFile)
+{
+    int res = sizeFile / 256;
+    int quo = sizeFile % 256;
+    int count = 1;
+
+    while(res > 0)
+    {
+      res = quo / 256;
+      quo %= 256;
+      count++;
+    }
+
+    int size = (5 + strlen(filename) + count) * sizeof(char);
+    char* data = (char *)malloc(size);
+
+    data[0] = c2;
+    data[1] = T_SIZE;
+    data[2] = count;
+
+    res = sizeFile / 256;
+    quo = sizeFile % 256;
+    int i = 3;
+    if(res == 0) data[i] = quo;
+    else data[i] = res;
+
+    while(res > 0)
+    {
+      res = quo / 256;
+      quo %= 256;
+      i++;
+      if(res == 0) data[i] = quo;
+      else data[i] = res;
+    }
+
+    data[i+1] = T_NAME;
+    data[i+2] = strlen(filename);
+
+    i+=3;
+    for(count = 0; count < strlen(filename); i++, count++)
+    {
+        data[i] = filename[count];
+    }
+
+    return data;
+
+}
+// 1 0000 0000
+// 0x100
+
+char* dataPackage()
+{
+
+}
+
 
 int main(int argc, char** argv)
 {
@@ -105,7 +160,8 @@ int main(int argc, char** argv)
     off_t fileSize;
     char* fileContent;
     fileContent = readFile(argv[1],&fileSize);
-    
+
+    char* start = controlPackage(C2_START, argv[1], fileSize);
 
     return 0;
 }
