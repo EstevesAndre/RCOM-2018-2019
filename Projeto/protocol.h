@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #define FLAG 0x7E
 #define A_SENDER 0x03

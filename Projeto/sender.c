@@ -19,7 +19,6 @@ int setup()
     because we don't want to get killed if linenoise sends CTRL-C.
   */
 
-
     fd = open("/dev/ttyS0", O_RDWR | O_NOCTTY );
     fflush(NULL);
 
@@ -41,8 +40,8 @@ int setup()
     newtio.c_cc[VTIME]    = 1;   /* inter-character timer unused */
     newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
 
-  /* 
-    VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
+  /*
+    VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a
     leitura do(s) pr�ximo(s) caracter(es)
   */
 
@@ -58,8 +57,38 @@ int setup()
     return fd;
 }
 
+char *readFile(char* filename, off_t *sizeFile)
+{
+    FILE *file;
+
+    struct stat fileInfo;
+    char* fileContent;
+
+    if( (file = fopen(filename, "rb")) == NULL)
+    {
+      perror("Error reading file.");
+      exit(-1);
+    }
+
+    stat(filename, &fileInfo);
+    (*sizeFile) = fileInfo.st_size;
+
+    fileContent = (char *)malloc(fileInfo.st_size);
+
+    fread(fileContent, sizeof(char), fileInfo.st_size, file);
+
+    return fileContent;
+}
+
+
 int main(int argc, char** argv)
 {
+    if(argc != 2)
+    {
+      printf("Usage: %s <filename>\n", argv[0]);
+      return -1;
+    }
+
     int fd = setup();
 
     if(llopen(fd, SENDER) == 0)
@@ -69,7 +98,14 @@ int main(int argc, char** argv)
     else
     {
       printf("Failed\n");
+      return -2;
     }
+
+    //Opens the file to be sent
+    off_t fileSize;
+    char* fileContent;
+    fileContent = readFile(argv[1],&fileSize);
+    
 
     return 0;
 }
