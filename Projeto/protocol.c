@@ -36,6 +36,7 @@ int llopen_Sender(int fd)
     printf("llopen_Sender initiated\n");
     (void) signal(SIGALRM, attend);
 
+    char BCC1 = A_SENDER ^ C_SET;
     char set[5] = {FLAG, A_SENDER, C_SET, BCC1, FLAG};
 
     int cnt = 0;
@@ -53,7 +54,7 @@ int llopen_Sender(int fd)
         cnt++;
     }
 
-    if(cnt == 3)´
+    if(cnt == 3)
     {        
         printf("llopen_Sender finished\n");
         return 2; //no confirmation recieved
@@ -81,7 +82,7 @@ int read_message(int fd, char buf[])
     int res;
     char c;
 
-    while(alarmflag != 1 && state != END)
+    while(alarm_flag != 1 && state != END)
     {
         res = read(fd,&c,1);
         
