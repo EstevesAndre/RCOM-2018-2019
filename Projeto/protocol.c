@@ -185,7 +185,7 @@ char calculateBCC2(char *message, int size)
 
 int stuffing_data_package(const char* package, const char BCC2, char* stuff)
 {
-    stuff = malloc(265 * 2 * sizeof(char));
+    stuff = (char *)malloc(265 * 2 * sizeof(char));
     
     int char_count = 1;
 
@@ -226,7 +226,7 @@ int stuffing_data_package(const char* package, const char BCC2, char* stuff)
     int count = 4;
     int i = package[2] * 256 + package[3];
 
-    for(; count < i; count++)
+    for(; count < 4 + i; count++)
     {        
         if(package[count] == 0x7E)
         {
@@ -243,15 +243,30 @@ int stuffing_data_package(const char* package, const char BCC2, char* stuff)
             stuff[char_count++] = package[count];
         }
     }
+
+    if(BCC2 == 0x7E)
+    {
+        stuff[char_count++] = 0x7D;
+        stuff[char_count++] = 0x5E;
+    }
+    else if(BCC2 == 0x7D)
+    {
+        stuff[char_count++] = 0x7D;
+        stuff[char_count++] = 0x5D;
+    }
+    else
+    {
+        stuff[char_count++] = BCC2;
+    }
     
     return char_count;
 }
 
 int stuffing_control_package(const char* package, const char BCC2, char* stuff)
 {
-    int size = package[1] * 256 + package[2];
+    int size = package[2];
 
-    stuff = malloc( (5 + size + package[3+size] * 256 + package[4+size]) * 2 * sizeof(char) );
+    stuff = (char *)malloc( (5 + size + package[3+size] * 256 + package[4+size]) * 2 * sizeof(char) );
     
     int char_count = 1;
 
@@ -289,7 +304,7 @@ int stuffing_control_package(const char* package, const char BCC2, char* stuff)
 
     int count = 3;
 
-    for(; count < size; count++)
+    for(; count < (3+size); count++)
     {        
         if(package[count] == 0x7E)
         {
@@ -338,8 +353,10 @@ int stuffing_control_package(const char* package, const char BCC2, char* stuff)
     }
 
     count = 5 + size;
+    int start_pnt = count;
+    size = package[4+size];
 
-    for(; count < size; count++)
+    for(; count < (start_pnt + size); count++)
     {        
         if(package[count] == 0x7E)
         {
@@ -355,7 +372,22 @@ int stuffing_control_package(const char* package, const char BCC2, char* stuff)
         {
             stuff[char_count++] = package[count];
         }
-    }    
+    }  
+
+    if(BCC2 == 0x7E)
+    {
+        stuff[char_count++] = 0x7D;
+        stuff[char_count++] = 0x5E;
+    }
+    else if(BCC2 == 0x7D)
+    {
+        stuff[char_count++] = 0x7D;
+        stuff[char_count++] = 0x5D;
+    }
+    else
+    {
+        stuff[char_count++] = BCC2;
+    }  
 
     return char_count;
 }
@@ -372,13 +404,37 @@ int stuffing(const char* package, const char BCC2, char* stuff)
     }
 }
 
+char* heading(char * stuff, int count, int flag)
+{
+    char * message = (char *)malloc( (5 + count) * sizeof(char));
+
+    message[0] = FLAG;
+    message[1] = A_SENDER;
+    message[2] = (char)(flag * 64);  
+    message[3] = A_SENDER ^ message[2];
+
+    int i = 4;
+    
+    for(; i < 5 + count; i++)
+    {
+        message[i] = stuff[i - 4];
+    }
+
+    message[i] = FLAG;
+
+    return message;
+}
+
 int llwrite(int fd, char* package, int flag)
 {
     char BCC2 = calculateBCC2(package, 4 + package[2]*256 + package[3]);
 
-    char * stuff;
+    char * stuff = NULL;
 
     int char_count = stuffing(package, BCC2, stuff);
+    
+    char* message = heading(stuff, char_count, flag);
+
 
 
     return 0;
