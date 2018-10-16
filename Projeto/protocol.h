@@ -28,6 +28,7 @@
 #define END 3
 
 #define C2_START 0x02
+#define C2_DATA 0x01
 #define C2_END 0x03
 #define T_SIZE 0x00
 #define T_NAME 0x01
@@ -45,3 +46,7 @@ int llopen(int fd, int flag);
 int write_message(int fd, char buf[], int size);
 
 char parseMessage(char buf[]);
+
+int llwrite(int fd, char* package, int flag);
+
+char calculateBBC2(char *message, int size);

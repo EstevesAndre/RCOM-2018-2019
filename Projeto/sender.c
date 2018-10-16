@@ -6,6 +6,7 @@
 #define FALSE 0
 #define TRUE 1
 
+char n_seq = 0;
 
 volatile int STOP=FALSE;
 
@@ -127,12 +128,41 @@ char* controlPackage(char c2, const char* filename, const off_t sizeFile)
     return data;
 
 }
-// 1 0000 0000
-// 0x100
 
-char* dataPackage()
+char* dataPackage(char * content, off_t *offset, off_t end_offset)
 {
+    char* package = malloc(264 * sizeof(char));
 
+    package[0] = C2_DATA;
+
+    package[1] = n_seq % 255;
+    n_seq++;
+
+    off_t chars_to_send = end_offset - *offset;
+
+    if (end_offset - *offset > 260)
+    {
+        chars_to_send = 260;
+    }
+
+    if(chars_to_send > 255)
+    {
+        package[2] = 1;
+        package[3] = chars_to_send - 256;
+    }
+    else
+    {
+        package[2] = 0;
+        package[3] = chars_to_send;
+    }
+
+    int i = 0;
+    for(i; i < chars_to_send; i++, (*offset)++)
+    {
+        package[4+i] = content[*offset];
+    }
+
+    return package;
 }
 
 
@@ -162,6 +192,12 @@ int main(int argc, char** argv)
     fileContent = readFile(argv[1],&fileSize);
 
     char* start = controlPackage(C2_START, argv[1], fileSize);
+
+    off_t offsetFile = 0;
+
+    while(offsetFile != fileSize)
+        char* package = dataPackage(fileContent, &offsetFile, fileSize);
+
 
     return 0;
 }
