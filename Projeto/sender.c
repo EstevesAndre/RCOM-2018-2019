@@ -157,7 +157,7 @@ char* dataPackage(char * content, off_t *offset, off_t end_offset)
     }
 
     int i = 0;
-    for(i; i < chars_to_send; i++, (*offset)++)
+    for(; i < chars_to_send; i++, (*offset)++)
     {
         package[4+i] = content[*offset];
     }
@@ -195,8 +195,14 @@ int main(int argc, char** argv)
 
     off_t offsetFile = 0;
 
+    llwrite(fd, start, 0);
+
     while(offsetFile != fileSize)
+    {
         char* package = dataPackage(fileContent, &offsetFile, fileSize);
+
+        llwrite(fd, package,0);
+    }
 
 
     return 0;

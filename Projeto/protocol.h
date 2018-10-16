@@ -33,6 +33,7 @@
 #define T_SIZE 0x00
 #define T_NAME 0x01
 
+
 void attend();
 
 int llopen_Receiver(int fd);
@@ -49,4 +50,4 @@ char parseMessage(char buf[]);
 
 int llwrite(int fd, char* package, int flag);
 
-char calculateBBC2(char *message, int size);
+char calculateBCC2(char *message, int size);
