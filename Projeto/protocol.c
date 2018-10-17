@@ -12,13 +12,13 @@ void disableAlarm()
     alarm_flag = 0;
 }
 
-int read_message(int fd, char buf[])
+int read_message(int fd, unsigned char buf[])
 {
     int state = BEGIN;
     int pos = 0;
 
     int res;
-    char c;
+    unsigned char c;
 
     while(alarm_flag != 1 && state != END)
     {
@@ -69,15 +69,16 @@ int read_message(int fd, char buf[])
     return 0;
 }
 
-void write_message(int fd, char buf[], int size)
+void write_message(int fd, unsigned char buf[], int size)
 {
     write(fd, buf, size);
 
     //sleep(1);
 }
 
-char parseMessageType(char buf[])
+unsigned char parseMessageType(unsigned char buf[])
 {
+    printf("BUF2 = %x\n",buf[2]);
     if(buf[0] != FLAG)
         return ERROR;
 
@@ -104,9 +105,9 @@ char parseMessageType(char buf[])
     return ERROR;
 }
 
-char calculateBCC2(char *message, int size)
+unsigned char calculateBCC2(unsigned char *message, int size)
 {
-    char bcc2 = message[0];
+    unsigned char bcc2 = message[0];
     int i = 1;
 
     for(; i < size; i++)
@@ -115,9 +116,9 @@ char calculateBCC2(char *message, int size)
     return bcc2;
 }
 
-char* stuffing_data_package(const char* package, const char BCC2, int* char_count)
+unsigned char* stuffing_data_package(const unsigned char* package, const unsigned char BCC2, int* char_count)
 {
-    char* stuff = (char *)malloc(265 * 2 * sizeof(char));
+    unsigned char* stuff = (unsigned char *)malloc(265 * 2 * sizeof(unsigned char));
 
     *char_count = 1;
 
@@ -194,11 +195,11 @@ char* stuffing_data_package(const char* package, const char BCC2, int* char_coun
     return stuff;
 }
 
-char* stuffing_control_package(const char* package, const char BCC2, int* char_count)
+unsigned char* stuffing_control_package(const unsigned char* package, const unsigned char BCC2, int* char_count)
 {
     int size = package[2];
 
-    char* stuff = (char *)malloc( (5 + size + package[3+size] * 256 + package[4+size]) * 2 * sizeof(char) );
+    unsigned char* stuff = (unsigned char *)malloc( (5 + size + package[3+size] * 256 + package[4+size]) * 2 * sizeof(unsigned char) );
 
     *char_count = 1;
 
@@ -324,7 +325,7 @@ char* stuffing_control_package(const char* package, const char BCC2, int* char_c
     return stuff;
 }
 
-char* stuffing(const char* package, const char BCC2, int* char_count)
+unsigned char* stuffing(const unsigned char* package, const unsigned char BCC2, int* char_count)
 {
     if(package[0] == C2_DATA)
     {
@@ -336,13 +337,13 @@ char* stuffing(const char* package, const char BCC2, int* char_count)
     }
 }
 
-char* heading(char * stuff, int count, int flag)
+unsigned char* heading(unsigned char * stuff, int count, int flag)
 {
-    char * message = (char *)malloc( (5 + count) * sizeof(char));
+    unsigned char * message = (unsigned char *)malloc( (5 + count) * sizeof(unsigned char));
 
     message[0] = FLAG;
     message[1] = A_SENDER;
-    message[2] = (char)(flag * 64);
+    message[2] = (unsigned char)(flag * 64);
     message[3] = A_SENDER ^ message[2];
 
     int i = 4;

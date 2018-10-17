@@ -8,7 +8,7 @@
 #define FALSE 0
 #define TRUE 1
 
-char n_seq = 0;
+unsigned char n_seq = 0;
 
 volatile int STOP=FALSE;
 
@@ -60,30 +60,30 @@ int setup()
     return fd;
 }
 
-char *readFile(char* filename, off_t *sizeFile)
+unsigned char *readFile(unsigned char* filename, off_t *sizeFile)
 {
     FILE *file;
 
     struct stat fileInfo;
-    char* fileContent;
+    unsigned char* fileContent;
 
-    if( (file = fopen(filename, "rb")) == NULL)
+    if( (file = fopen((char*)filename, "rb")) == NULL)
     {
       perror("Error reading file.");
       exit(-1);
     }
 
-    stat(filename, &fileInfo);
+    stat((char*)filename, &fileInfo);
     (*sizeFile) = fileInfo.st_size;
 
-    fileContent = (char *)malloc(fileInfo.st_size);
+    fileContent = (unsigned char *)malloc(fileInfo.st_size);
 
-    fread(fileContent, sizeof(char), fileInfo.st_size, file);
+    fread(fileContent, sizeof(unsigned char), fileInfo.st_size, file);
 
     return fileContent;
 }
 
-char* controlPackage(char c2, const char* filename, const off_t sizeFile)
+unsigned char* controlPackage(unsigned char c2, const unsigned char* filename, const off_t sizeFile)
 {
     int res = sizeFile / 256;
     int quo = sizeFile % 256;
@@ -96,8 +96,8 @@ char* controlPackage(char c2, const char* filename, const off_t sizeFile)
       count++;
     }
 
-    int size = (5 + strlen(filename) + count) * sizeof(char);
-    char* data = (char *)malloc(size);
+    int size = (5 + strlen((char*)filename) + count) * sizeof(unsigned char);
+    unsigned char* data = (unsigned char *)malloc(size);
 
     data[0] = c2;
     data[1] = T_SIZE;
@@ -119,10 +119,10 @@ char* controlPackage(char c2, const char* filename, const off_t sizeFile)
     }
 
     data[i+1] = T_NAME;
-    data[i+2] = strlen(filename);
+    data[i+2] = strlen((char*)filename);
 
     i+=3;
-    for(count = 0; count < strlen(filename); i++, count++)
+    for(count = 0; count < strlen((char*)filename); i++, count++)
     {
         data[i] = filename[count];
     }
@@ -131,9 +131,9 @@ char* controlPackage(char c2, const char* filename, const off_t sizeFile)
 
 }
 
-char* dataPackage(char * content, off_t *offset, off_t end_offset)
+unsigned char* dataPackage(unsigned char * content, off_t *offset, off_t end_offset)
 {
-    char* package = malloc(264 * sizeof(char));
+    unsigned char* package = malloc(264 * sizeof(unsigned char));
 
     package[0] = C2_DATA;
 
@@ -190,24 +190,24 @@ int main(int argc, char** argv)
 
     //Opens the file to be sent
     off_t fileSize;
-    char* fileContent;
-    fileContent = readFile(argv[1],&fileSize);
+    unsigned char* fileContent;
+    fileContent = readFile((unsigned char *)argv[1],&fileSize);
 
-    char* start = controlPackage(C2_START, argv[1], fileSize);
-
+    unsigned char* start = controlPackage(C2_START, (unsigned char *)argv[1], fileSize);
     off_t offsetFile = 0;
 
     if(llwrite(fd, start, 0) == 2) //ERROR
       return -1;
 
+    printf("after1llwrite\n");
     int flag = 1;
-
+    int c = 0;
     while(offsetFile != fileSize)
     {
-        char* package = dataPackage(fileContent, &offsetFile, fileSize);
+        unsigned char* package = dataPackage(fileContent, &offsetFile, fileSize);
 
         flag = llwrite(fd, package,flag);
-
+        printf("%d\n", c++);
         if(flag == 2)//ERROR
           return -1;
     }

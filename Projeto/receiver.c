@@ -61,7 +61,7 @@ int setup()
 }
 
 
-off_t parseMessageStart(char* message, char** filename)
+off_t parseMessageStart(unsigned char* message, unsigned char** filename)
 {
     off_t fileSize = 0;
 
@@ -75,7 +75,7 @@ off_t parseMessageStart(char* message, char** filename)
 
     int filename_length = (int)message[2+i+2];
 
-    char* name = (char *)malloc((filename_length + 1)* sizeof(char));
+    unsigned char* name = (unsigned char *)malloc((filename_length + 1)* sizeof(unsigned char));
 
     i = i + 5;
     int j = 0;
@@ -91,11 +91,11 @@ off_t parseMessageStart(char* message, char** filename)
     return fileSize;
 }
 
-int parseMessageData(char* message, int messageSize, char** data)
+int parseMessageData(unsigned char* message, int messageSize, unsigned char** data)
 {
     int length = message[2] * 256 + message[3];
 
-    char * dataAux = malloc(length * sizeof(char));
+    unsigned char * dataAux = malloc(length * sizeof(unsigned char));
 
     int i = 4;
     for(; i < length; i++)
@@ -108,7 +108,7 @@ int parseMessageData(char* message, int messageSize, char** data)
     return length;
 }
 
-void saveData(char* fileContent, char* data, int sizeData, int *index)
+void saveData(unsigned char* fileContent, unsigned char* data, int sizeData, int *index)
 {
     int i = 0;
     for(; i < sizeData; i++)
@@ -119,9 +119,9 @@ void saveData(char* fileContent, char* data, int sizeData, int *index)
     (*index) += sizeData;
 }
 
-void createFile(char* fileContent, char* filename, off_t size_file)
+void createFile(unsigned char* fileContent, unsigned char* filename, off_t size_file)
 {
-    FILE *file = fopen(filename, "wb+");
+    FILE *file = fopen((char*)filename, "wb+");
     fwrite(fileContent, 1, size_file, file);
     fclose(file);
 }
@@ -142,16 +142,16 @@ int main(int argc, char** argv)
 
     // Initial flag for start package
     int flag = 0;
-    char* message;
+    unsigned char* message;
     int messageSize;
 
     while((messageSize = llread(fd, flag, &message)) < 0);
     flag = 1;
 
-    char* filename;
+    unsigned char* filename;
     off_t size_file = parseMessageStart(message,&filename);
 
-    char * fileContent = malloc(size_file * sizeof(char));
+    unsigned char * fileContent = malloc(size_file * sizeof(unsigned char));
 
     int index = 0;
 
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
         while((messageSize = llread(fd, flag, &message)) < 0);
         (flag == 0) ? (flag = 1) : (flag = 0);
 
-        char * data;
+        unsigned char * data;
         int sizeData = parseMessageData(message, messageSize, &data);
 
         saveData(fileContent, data, sizeData, &index);

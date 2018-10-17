@@ -17,11 +17,11 @@
 
 volatile int STOP=FALSE;
 
-int main(int argc, char** argv)
+int main(int argc, unsigned char** argv)
 {
     int fd,c, res;
     struct termios oldtio,newtio;
-    char buf[255];
+    unsigned char buf[255];
     int i, sum = 0, speed = 0;
     
     if ( (argc < 2) || 

@@ -3,12 +3,12 @@
 
 int llopen_Receiver(int fd)
 {
-    char BCC1 = A_SENDER ^ C_UA;
-    char ua[6] = {FLAG, A_SENDER, C_UA, BCC1, FLAG, '\0'};
+    unsigned char BCC1 = A_SENDER ^ C_UA;
+    unsigned char ua[6] = {FLAG, A_SENDER, C_UA, BCC1, FLAG, '\0'};
 
     disableAlarm();
 
-    char buf[255];
+    unsigned char buf[255];
 
     while(1)
     {
@@ -29,11 +29,11 @@ int llopen_Sender(int fd)
 {
     (void) signal(SIGALRM, attend);
 
-    char BCC1 = A_SENDER ^ C_SET;
-    char set[6] = {FLAG, A_SENDER, C_SET, BCC1, FLAG, '\0'};
+    unsigned char BCC1 = A_SENDER ^ C_SET;
+    unsigned char set[6] = {FLAG, A_SENDER, C_SET, BCC1, FLAG, '\0'};
 
     int cnt = 0;
-    char buf[255];
+    unsigned char buf[255];
 
     while(cnt < 3)
     {

@@ -45,20 +45,20 @@ void attend();
 
 void disableAlarm();
 
-int read_message(int fd, char buf[]);
+int read_message(int fd, unsigned char buf[]);
 
-void write_message(int fd, char buf[], int size);
+void write_message(int fd, unsigned char buf[], int size);
 
-char parseMessageType(char buf[]);
+unsigned char parseMessageType(unsigned char buf[]);
 
-char calculateBCC2(char *message, int size);
+unsigned char calculateBCC2(unsigned char *message, int size);
 
-char* stuffing_data_package(const char* package, const char BCC2, int* char_count);
+unsigned char* stuffing_data_package(const unsigned char* package, const unsigned char BCC2, int* char_count);
 
-char* stuffing_control_package(const char* package, const char BCC2, int* char_count);
+unsigned char* stuffing_control_package(const unsigned char* package, const unsigned char BCC2, int* char_count);
 
-char* stuffing(const char* package, const char BCC2, int* char_count);
+unsigned char* stuffing(const unsigned char* package, const unsigned char BCC2, int* char_count);
 
-char* heading(char * stuff, int count, int flag);
+unsigned char* heading(unsigned char * stuff, int count, int flag);
 
 #endif

@@ -1,23 +1,23 @@
 #include "protocol.h"
 #include "llread.h"
 
-int llread(int fd, int flag, char** message)
+int llread(int fd, int flag, unsigned char** message)
 {
-    char* buf = malloc(600 * sizeof(char));
+    unsigned char* buf = malloc(600 * sizeof(unsigned char));
 
     while(1)
     {
         if(read_message(fd, buf) == 0) break;        
     }
 
-    if(buf[2] != (char)(flag * 64))
+    if(buf[2] != (unsigned char)(flag * 64))
     {
-        char c1;
+        unsigned char c1;
         if(flag == 0) c1 = C_RR0;
         else c1 = C_RR1;
         
-        char BCC1 = A_SENDER ^ c1;
-        char rr[6] = {FLAG, A_SENDER, c1, BCC1, FLAG, '\0'};
+        unsigned char BCC1 = A_SENDER ^ c1;
+        unsigned char rr[6] = {FLAG, A_SENDER, c1, BCC1, FLAG, '\0'};
 
         write_message(fd, rr, 5);
 
@@ -29,19 +29,19 @@ int llread(int fd, int flag, char** message)
 
     int size;
 
-    char* destuffed = destuffing(buf + 4, &size);
+    unsigned char* destuffed = destuffing(buf + 4, &size);
 
     if (checkBCC2(destuffed, size) == 1)
         return -5;
     
     *message = destuffed;
 
-    char c1;
+    unsigned char c1;
     if(flag == 0) c1 = C_RR1;
     else c1 = C_RR0;
     
-    char BCC1 = A_SENDER ^ c1;
-    char rr[6] = {FLAG, A_SENDER, c1, BCC1, FLAG, '\0'};
+    unsigned char BCC1 = A_SENDER ^ c1;
+    unsigned char rr[6] = {FLAG, A_SENDER, c1, BCC1, FLAG, '\0'};
 
     write_message(fd, rr, 5);
 
@@ -49,10 +49,10 @@ int llread(int fd, int flag, char** message)
     return size;
 }
 
-int checkBCC2(char * package, int size)
+int checkBCC2(unsigned char * package, int size)
 {
     int i = 1;
-    char check = package[0];
+    unsigned char check = package[0];
     for(; i < size - 2; i++)
     {
         check ^= package[i];
@@ -65,9 +65,9 @@ int checkBCC2(char * package, int size)
 }
 
 
-char* destuffing(char* buf, int *size)
+unsigned char* destuffing(unsigned char* buf, int *size)
 {
-    char* destuff = malloc(600);
+    unsigned char* destuff = malloc(600);
     
     int i = 0, j = 0;
 

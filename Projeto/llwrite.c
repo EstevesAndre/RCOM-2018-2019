@@ -1,17 +1,17 @@
 #include "protocol.h"
 #include "llwrite.h"
 
-int llwrite(int fd, char* package, int flag)
+int llwrite(int fd, unsigned char* package, int flag)
 {
-    char BCC2 = calculateBCC2(package, 4 + package[2]*256 + package[3]);
+    unsigned char BCC2 = calculateBCC2(package, 4 + package[2]*256 + package[3]);
 
     int char_count;
-    char * stuff = stuffing(package, BCC2, &char_count);
+    unsigned char * stuff = stuffing(package, BCC2, &char_count);
 
-    char* message = heading(stuff, char_count, flag);
+    unsigned char* message = heading(stuff, char_count, flag);
 
     int cnt = 0;
-    char buf[255];
+    unsigned char buf[255];
 
     while(cnt < 3)
     {
@@ -19,16 +19,21 @@ int llwrite(int fd, char* package, int flag)
         disableAlarm();
 
         write_message(fd, message, 5 + char_count);
-
+        printf("ss\n");
         if(read_message(fd, buf) == 0)
         {
+            printf("has\n%x\n",parseMessageType(buf));
           if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
+           {
+               printf("denttro\n"); 
             break;
+           }
         }
 
         cnt++;
     }
 
+    
     if(cnt == 3)
     {
         return 2; //no confirmation recieved
