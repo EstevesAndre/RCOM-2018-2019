@@ -7,7 +7,7 @@ int llread(int fd, int flag, unsigned char** message)
 
     while(1)
     {
-        if(read_message(fd, buf) == 0) break;        
+        if(read_message(fd, buf) == 0) break;
     }
 
     if(buf[2] != (unsigned char)(flag * 64))
@@ -15,7 +15,7 @@ int llread(int fd, int flag, unsigned char** message)
         unsigned char c1;
         if(flag == 0) c1 = C_RR0;
         else c1 = C_RR1;
-        
+
         unsigned char BCC1 = A_SENDER ^ c1;
         unsigned char rr[6] = {FLAG, A_SENDER, c1, BCC1, FLAG, '\0'};
 
@@ -23,7 +23,7 @@ int llread(int fd, int flag, unsigned char** message)
 
         return -3;
     }
-    
+
     if(buf[3] != (buf[1] ^ buf[2]))
         return -4;
 
@@ -31,15 +31,15 @@ int llread(int fd, int flag, unsigned char** message)
 
     unsigned char* destuffed = destuffing(buf + 4, &size);
 
-    if (checkBCC2(destuffed, size) == 1)
-        return -5;
-    
+    //if (checkBCC2(destuffed, size) == 1)
+        //return -5;
+
     *message = destuffed;
 
     unsigned char c1;
     if(flag == 0) c1 = C_RR1;
     else c1 = C_RR0;
-    
+
     unsigned char BCC1 = A_SENDER ^ c1;
     unsigned char rr[6] = {FLAG, A_SENDER, c1, BCC1, FLAG, '\0'};
 
@@ -68,7 +68,7 @@ int checkBCC2(unsigned char * package, int size)
 unsigned char* destuffing(unsigned char* buf, int *size)
 {
     unsigned char* destuff = malloc(600);
-    
+
     int i = 0, j = 0;
 
     while(1)
@@ -84,9 +84,9 @@ unsigned char* destuffing(unsigned char* buf, int *size)
                 destuff[j] = 0x7E;
             else if(buf[i + 1] == 0x5D)
                 destuff[j] = 0x7D;
-            
+
             j++;
-            i+=2;        
+            i+=2;
         }
         else
         {
@@ -97,6 +97,6 @@ unsigned char* destuffing(unsigned char* buf, int *size)
     }
 
     (*size) = j + 1;
-    
+
     return destuff;
 }

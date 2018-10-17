@@ -65,7 +65,7 @@ off_t parseMessageStart(unsigned char* message, unsigned char** filename)
 {
     off_t fileSize = 0;
 
-    int file_size_length = (int)message[2];
+    int file_size_length = message[2];
 
     int i = 1;
     for(; i <= file_size_length; i++)
@@ -73,20 +73,22 @@ off_t parseMessageStart(unsigned char* message, unsigned char** filename)
         fileSize += message[2+i] * pow(256,file_size_length - i);
     }
 
-    int filename_length = (int)message[2+i+2];
+    int filename_length = message[2+i+1];
 
     unsigned char* name = (unsigned char *)malloc((filename_length + 1)* sizeof(unsigned char));
 
-    i = i + 5;
+    int k = i + 4;
     int j = 0;
-    for(; i <= filename_length; i++, j++)
+    for(; k < filename_length + i + 4; k++, j++)
     {
-        name[j] = message[i];
+        name[j] = message[k];
     }
 
     name[j] = '\0';
 
     (*filename) = name;
+    printf("%d\n", filename_length);
+    printf("%s\n", *filename);
 
     return fileSize;
 }
