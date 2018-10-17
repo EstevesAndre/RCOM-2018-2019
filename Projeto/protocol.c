@@ -69,14 +69,12 @@ int read_message(int fd, char buf[])
     return 0;
 }
 
-int write_message(int fd, char buf[], int size)
+void write_message(int fd, char buf[], int size)
 {
 
     write(fd, buf, size);
 
-    sleep(1);
-
-    return 0;
+    //sleep(1);
 }
 
 char parseMessageType(char buf[])
@@ -90,7 +88,13 @@ char parseMessageType(char buf[])
     if((buf[2] ^ buf[1]) != buf[3])
         return ERROR;
 
-    if(buf[2] == C_DISC || buf[2] == C_SET || buf[2] == C_UA)
+    if(buf[2] == C_DISC ||
+      buf[2] == C_SET ||
+      buf[2] == C_UA ||
+      buf[2] == C_RR0 ||
+      buf[2] == C_RR1 ||
+      buf[2] == C_REJ0 ||
+      buf[2] == C_REJ1)
     {
         if(buf[4] == FLAG)
             return buf[2];
@@ -352,12 +356,4 @@ char* heading(char * stuff, int count, int flag)
     message[i] = FLAG;
 
     return message;
-}
-
-int send_message(int fd, char* message)
-{
-    int res = write(fd,message,255);
-    fflush(NULL);
-    //sleep(1);
-    return res;
 }

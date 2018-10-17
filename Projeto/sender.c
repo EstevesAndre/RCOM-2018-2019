@@ -197,15 +197,19 @@ int main(int argc, char** argv)
 
     off_t offsetFile = 0;
 
-    llwrite(fd, start, 0);
+    if(llwrite(fd, start, 0) == 2) //ERROR
+      return -1;
+
+    int flag = 1;
 
     while(offsetFile != fileSize)
     {
         char* package = dataPackage(fileContent, &offsetFile, fileSize);
 
-        llwrite(fd, package,0);
+        flag = llwrite(fd, package,flag);
+
+        if(flag == 2)//ERROR
+          return -1;
     }
-
-
     return 0;
 }

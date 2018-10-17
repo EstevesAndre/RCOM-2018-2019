@@ -18,6 +18,11 @@
 #define C_SET 0x03
 #define C_DISC 0x0B
 #define C_UA 0x07
+#define C_RR0 0x05
+#define C_RR1 0x85
+#define C_REJ0 0x01
+#define C_REJ1 0x81
+
 #define ERROR 0xFF
 
 #define SENDER 0
@@ -40,7 +45,7 @@ void disableAlarm();
 
 int read_message(int fd, char buf[]);
 
-int write_message(int fd, char buf[], int size);
+void write_message(int fd, char buf[], int size);
 
 char parseMessageType(char buf[]);
 
@@ -53,7 +58,5 @@ char* stuffing_control_package(const char* package, const char BCC2, int* char_c
 char* stuffing(const char* package, const char BCC2, int* char_count);
 
 char* heading(char * stuff, int count, int flag);
-
-int send_message(int fd, char* message);
 
 #endif
