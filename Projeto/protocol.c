@@ -8,14 +8,14 @@ void attend()
 }
 
 int llopen_Receiver(int fd)
-{ 
+{
     char BCC1 = A_SENDER ^ C_UA;
     char ua[6] = {FLAG, A_SENDER, C_UA, BCC1, FLAG, '\0'};
 
     alarm_flag = 0;
 
     char buf[255];
-    
+
     while(1)
     {
         if(read_message(fd, buf) == 0) break;
@@ -27,7 +27,7 @@ int llopen_Receiver(int fd)
         write_message(fd, ua, 5);
         return 0;
     }
-    else 
+    else
         return -5;
 }
 
@@ -45,7 +45,7 @@ int llopen_Sender(int fd)
     {
         alarm(3);
         alarm_flag = 0;
-        
+
         write_message(fd, set, 5);
 
         if(read_message(fd, buf) == 0) break;
@@ -54,17 +54,17 @@ int llopen_Sender(int fd)
     }
 
     if(cnt == 3)
-    {        
+    {
         return 2; //no confirmation recieved
     }
 
     // analisar receiver info
     if(parseMessage(buf) == C_UA)
-    {        
+    {
         return 0;
     }
     else
-    {          
+    {
         return -6;
     }
 }
@@ -80,23 +80,23 @@ int read_message(int fd, char buf[])
     while(alarm_flag != 1 && state != END)
     {
         res = read(fd,&c,1);
-        
+
 		if(res > 0)
 		{
 		    switch(state)
 		    {
-		        case BEGIN: 
+		        case BEGIN:
 				{
 		            if(c == FLAG)
 		            {
 		                buf[pos] = c;
 		                pos++;
 		                state = START_MESSAGE;
-		            }                    
+		            }
 		            break;
 				}
 		        case START_MESSAGE:
-		        {                    
+		        {
 		            if(c != FLAG)
 		            {
 		                buf[pos] = c;
@@ -104,20 +104,20 @@ int read_message(int fd, char buf[])
 		                state = MESSAGE;
 		            }
 		            break;
-		        }            
+		        }
 		        case MESSAGE:
 		        {
 					buf[pos] = c;
 		            pos++;
 		            if(c == FLAG)
-		            {                    
+		            {
 		                state = END;
 		            }
 		            break;
 		        }
 		        default: state = END;
-		    }    
-		}		 
+		    }
+		}
     }
 
     if(alarm_flag == 1)
@@ -127,7 +127,7 @@ int read_message(int fd, char buf[])
 }
 
 int llopen(int fd, int flag)
-{    
+{
     if(flag == SENDER)
     {
         return llopen_Sender(fd);
@@ -136,17 +136,17 @@ int llopen(int fd, int flag)
     {
         return llopen_Receiver(fd);
     }
-  
+
     return -1;
 }
 
 int write_message(int fd, char buf[], int size)
-{    
+{
 
     write(fd, buf, size);
-    
+
     sleep(1);
-    
+
     return 0;
 }
 
@@ -157,7 +157,7 @@ char parseMessage(char buf[])
 
     if(buf[1] != A_SENDER && buf[1] != A_RECEIVER)
         return ERROR;
-    
+
     if((buf[2] ^ buf[1]) != buf[3])
         return ERROR;
 
@@ -169,7 +169,7 @@ char parseMessage(char buf[])
             return ERROR;
     }
 
-    return ERROR;    
+    return ERROR;
 }
 
 char calculateBCC2(char *message, int size)
@@ -183,173 +183,173 @@ char calculateBCC2(char *message, int size)
     return bcc2;
 }
 
-int stuffing_data_package(const char* package, const char BCC2, char* stuff)
+char* stuffing_data_package(const char* package, const char BCC2, int* char_count)
 {
-    stuff = (char *)malloc(265 * 2 * sizeof(char));
-    
-    int char_count = 1;
+    char* stuff = (char *)malloc(265 * 2 * sizeof(char));
+
+    *char_count = 1;
 
     stuff[0] = package[0];
-    
+
     if(package[1] == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(package[1] == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = package[1];
+        stuff[(*char_count)++] = package[1];
     }
 
-    stuff[char_count++] = package[2];
+    stuff[(*char_count)++] = package[2];
 
     if(package[3] == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(package[3] == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = package[3];
+        stuff[(*char_count)++] = package[3];
     }
-    
+
     int count = 4;
     int i = package[2] * 256 + package[3];
 
     for(; count < 4 + i; count++)
-    {        
+    {
         if(package[count] == 0x7E)
         {
-            stuff[char_count++] = 0x7D;
-            stuff[char_count++] = 0x5E;
+            stuff[(*char_count)++] = 0x7D;
+            stuff[(*char_count)++] = 0x5E;
         }
         else if(package[count] == 0x7D)
         {
-            stuff[char_count++] = 0x7D;
-            stuff[char_count++] = 0x5D;
+            stuff[(*char_count)++] = 0x7D;
+            stuff[(*char_count)++] = 0x5D;
         }
         else
         {
-            stuff[char_count++] = package[count];
+            stuff[(*char_count)++] = package[count];
         }
     }
 
     if(BCC2 == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(BCC2 == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = BCC2;
+        stuff[(*char_count)++] = BCC2;
     }
-    
-    return char_count;
+
+    return stuff;
 }
 
-int stuffing_control_package(const char* package, const char BCC2, char* stuff)
+char* stuffing_control_package(const char* package, const char BCC2, int* char_count)
 {
     int size = package[2];
 
-    stuff = (char *)malloc( (5 + size + package[3+size] * 256 + package[4+size]) * 2 * sizeof(char) );
-    
-    int char_count = 1;
+    char* stuff = (char *)malloc( (5 + size + package[3+size] * 256 + package[4+size]) * 2 * sizeof(char) );
+
+    *char_count = 1;
 
     stuff[0] = package[0];
 
     if(package[1] == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(package[1] == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = package[1];
+        stuff[(*char_count)++] = package[1];
     }
 
     if(package[2] == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(package[2] == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = package[2];
+        stuff[(*char_count)++] = package[2];
     }
 
     int count = 3;
 
     for(; count < (3+size); count++)
-    {        
+    {
         if(package[count] == 0x7E)
         {
-            stuff[char_count++] = 0x7D;
-            stuff[char_count++] = 0x5E;
+            stuff[(*char_count)++] = 0x7D;
+            stuff[(*char_count)++] = 0x5E;
         }
         else if(package[count] == 0x7D)
         {
-            stuff[char_count++] = 0x7D;
-            stuff[char_count++] = 0x5D;
+            stuff[(*char_count)++] = 0x7D;
+            stuff[(*char_count)++] = 0x5D;
         }
         else
         {
-            stuff[char_count++] = package[count];
+            stuff[(*char_count)++] = package[count];
         }
     }
 
     if(package[3+size] == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(package[3+size] == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = package[3+size];
+        stuff[(*char_count)++] = package[3+size];
     }
 
     if(package[4+size] == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(package[4+size] == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = package[4+size];
+        stuff[(*char_count)++] = package[4+size];
     }
 
     count = 5 + size;
@@ -357,50 +357,50 @@ int stuffing_control_package(const char* package, const char BCC2, char* stuff)
     size = package[4+size];
 
     for(; count < (start_pnt + size); count++)
-    {        
+    {
         if(package[count] == 0x7E)
         {
-            stuff[char_count++] = 0x7D;
-            stuff[char_count++] = 0x5E;
+            stuff[(*char_count)++] = 0x7D;
+            stuff[(*char_count)++] = 0x5E;
         }
         else if(package[count] == 0x7D)
         {
-            stuff[char_count++] = 0x7D;
-            stuff[char_count++] = 0x5D;
+            stuff[(*char_count)++] = 0x7D;
+            stuff[(*char_count)++] = 0x5D;
         }
         else
         {
-            stuff[char_count++] = package[count];
+            stuff[(*char_count)++] = package[count];
         }
-    }  
+    }
 
     if(BCC2 == 0x7E)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5E;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5E;
     }
     else if(BCC2 == 0x7D)
     {
-        stuff[char_count++] = 0x7D;
-        stuff[char_count++] = 0x5D;
+        stuff[(*char_count)++] = 0x7D;
+        stuff[(*char_count)++] = 0x5D;
     }
     else
     {
-        stuff[char_count++] = BCC2;
-    }  
+        stuff[(*char_count)++] = BCC2;
+    }
 
-    return char_count;
+    return stuff;
 }
 
-int stuffing(const char* package, const char BCC2, char* stuff)
-{ 
+char* stuffing(const char* package, const char BCC2, int* char_count)
+{
     if(package[0] == C2_DATA)
     {
-        return stuffing_data_package(package, BCC2, stuff);
+        return stuffing_data_package(package, BCC2, char_count);
     }
     else
     {
-        return stuffing_control_package(package, BCC2, stuff);
+        return stuffing_control_package(package, BCC2, char_count);
     }
 }
 
@@ -410,11 +410,11 @@ char* heading(char * stuff, int count, int flag)
 
     message[0] = FLAG;
     message[1] = A_SENDER;
-    message[2] = (char)(flag * 64);  
+    message[2] = (char)(flag * 64);
     message[3] = A_SENDER ^ message[2];
 
     int i = 4;
-    
+
     for(; i < 5 + count; i++)
     {
         message[i] = stuff[i - 4];
@@ -429,13 +429,12 @@ int llwrite(int fd, char* package, int flag)
 {
     char BCC2 = calculateBCC2(package, 4 + package[2]*256 + package[3]);
 
-    char * stuff = NULL;
+    int char_count;
+    char * stuff = stuffing(package, BCC2, &char_count);
 
-    int char_count = stuffing(package, BCC2, stuff);
-    
     char* message = heading(stuff, char_count, flag);
 
-
+    
 
     return 0;
 }
