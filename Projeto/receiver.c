@@ -97,12 +97,15 @@ int parseMessageData(unsigned char* message, int messageSize, unsigned char** da
 {
     int length = message[2] * 256 + message[3];
 
+    printf("PACKET LENGTH %d\n", length);
+
     unsigned char * dataAux = malloc(length * sizeof(unsigned char));
 
     int i = 4;
-    for(; i < length; i++)
+    for(; i < length + 4; i++)
     {
-        dataAux[i - 4] = message[i];
+        dataAux[i-4] = message[i];
+        printf("%x\n", dataAux[i-4]);
     }
 
     (*data) = dataAux;
