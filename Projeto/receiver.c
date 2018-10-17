@@ -2,6 +2,7 @@
 #include "llopen.h"
 #include "llread.h"
 
+
 #define BAUDRATE B38400
 #define MODEMDEVICE "/dev/ttyS1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -63,7 +64,7 @@ int setup()
 off_t parseMessageStart(char* message, char** filename)
 {
     off_t fileSize = 0;
-    
+
     int file_size_length = (int)message[2];
 
     int i = 1;
@@ -71,7 +72,7 @@ off_t parseMessageStart(char* message, char** filename)
     {
         fileSize += message[2+i] * pow(256,file_size_length - i);
     }
-    
+
     int filename_length = (int)message[2+i+2];
 
     char* name = (char *)malloc((filename_length + 1)* sizeof(char));
@@ -114,8 +115,8 @@ void saveData(char* fileContent, char* data, int sizeData, int *index)
     {
         fileContent[(*index) + i] = data[i];
     }
-    
-    (*index) += sizeData;    
+
+    (*index) += sizeData;
 }
 
 void createFile(char* fileContent, char* filename, off_t size_file)
@@ -149,7 +150,7 @@ int main(int argc, char** argv)
 
     char* filename;
     off_t size_file = parseMessageStart(message,&filename);
-    
+
     char * fileContent = malloc(size_file * sizeof(char));
 
     int index = 0;
