@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _PROTOCOL_H
+#define _PROTOCOL_H
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -33,21 +34,26 @@
 #define T_SIZE 0x00
 #define T_NAME 0x01
 
-
 void attend();
 
-int llopen_Receiver(int fd);
-
-int llopen_Sender(int fd);
+void disableAlarm();
 
 int read_message(int fd, char buf[]);
 
-int llopen(int fd, int flag);
-
 int write_message(int fd, char buf[], int size);
 
-char parseMessage(char buf[]);
-
-int llwrite(int fd, char* package, int flag);
+char parseMessageType(char buf[]);
 
 char calculateBCC2(char *message, int size);
+
+char* stuffing_data_package(const char* package, const char BCC2, int* char_count);
+
+char* stuffing_control_package(const char* package, const char BCC2, int* char_count);
+
+char* stuffing(const char* package, const char BCC2, int* char_count);
+
+char* heading(char * stuff, int count, int flag);
+
+int send_message(int fd, char* message);
+
+#endif
