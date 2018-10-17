@@ -71,7 +71,6 @@ int read_message(int fd, char buf[])
 
 void write_message(int fd, char buf[], int size)
 {
-
     write(fd, buf, size);
 
     //sleep(1);

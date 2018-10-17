@@ -11,6 +11,7 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include <math.h>
 
 #define FLAG 0x7E
 #define A_SENDER 0x03
