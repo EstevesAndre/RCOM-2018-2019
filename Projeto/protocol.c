@@ -1,6 +1,7 @@
 #include "protocol.h"
 
 int alarm_flag = 1;
+int rejj = 0;
 
 void attend()
 {
@@ -29,7 +30,7 @@ int read_message(int fd, unsigned char buf[])
     		    switch(state)
     		    {
     		        case BEGIN:
-    				{
+        				{
     		            if(c == FLAG)
     		            {
     		                buf[pos] = c;
@@ -37,7 +38,7 @@ int read_message(int fd, unsigned char buf[])
     		                state = START_MESSAGE;
     		            }
     		            break;
-    				}
+    				    }
     		        case START_MESSAGE:
     		        {
     		            if(c != FLAG)
@@ -50,7 +51,7 @@ int read_message(int fd, unsigned char buf[])
     		        }
     		        case MESSAGE:
     		        {
-    					buf[pos] = c;
+    					      buf[pos] = c;
     		            pos++;
     		            if(c == FLAG)
     		            {
@@ -79,6 +80,7 @@ void write_message(int fd, unsigned char buf[], int size)
 
 unsigned char parseMessageType(unsigned char buf[])
 {
+    printf("%x\n",buf[2]);
     if(buf[0] != FLAG)
         return ERROR;
 
@@ -112,7 +114,6 @@ unsigned char calculateBCC2(unsigned char *message, int size)
 
     for(; i < size; i++)
     {
-
         bcc2 ^= message[i];
     }
 
