@@ -31,8 +31,8 @@ int llread(int fd, int flag, unsigned char** message)
 
     unsigned char* destuffed = destuffing(buf + 4, &size);
 
-    //if (checkBCC2(destuffed, size) == 1)
-        //return -5;
+    if (checkBCC2(destuffed, size) == 1)
+        return -5;
 
     *message = destuffed;
 
@@ -53,6 +53,7 @@ int checkBCC2(unsigned char * package, int size)
 {
     int i = 1;
     unsigned char check = package[0];
+    
     for(; i < size - 2; i++)
     {
         check ^= package[i];

@@ -19,49 +19,51 @@ int read_message(int fd, unsigned char buf[])
 
     int res;
     unsigned char c;
-
+    printf("rm1\n");
     while(alarm_flag != 1 && state != END)
     {
         res = read(fd,&c,1);
 
-		if(res > 0)
-		{
-		    switch(state)
-		    {
-		        case BEGIN:
-				{
-		            if(c == FLAG)
-		            {
-		                buf[pos] = c;
-		                pos++;
-		                state = START_MESSAGE;
-		            }
-		            break;
-				}
-		        case START_MESSAGE:
-		        {
-		            if(c != FLAG)
-		            {
-		                buf[pos] = c;
-		                pos++;
-		                state = MESSAGE;
-		            }
-		            break;
-		        }
-		        case MESSAGE:
-		        {
-					buf[pos] = c;
-		            pos++;
-		            if(c == FLAG)
-		            {
-		                state = END;
-		            }
-		            break;
-		        }
-		        default: state = END;
-		    }
-		}
+    		if(res > 0)
+    		{
+    		    switch(state)
+    		    {
+    		        case BEGIN:
+    				{
+    		            if(c == FLAG)
+    		            {
+    		                buf[pos] = c;
+    		                pos++;
+    		                state = START_MESSAGE;
+    		            }
+    		            break;
+    				}
+    		        case START_MESSAGE:
+    		        {
+    		            if(c != FLAG)
+    		            {
+    		                buf[pos] = c;
+    		                pos++;
+    		                state = MESSAGE;
+    		            }
+    		            break;
+    		        }
+    		        case MESSAGE:
+    		        {
+    					buf[pos] = c;
+    		            pos++;
+    		            if(c == FLAG)
+    		            {
+    		                state = END;
+    		            }
+    		            break;
+    		        }
+    		        default: state = END;
+    		    }
+    		}
     }
+
+    printf("rm2\n");
 
     if(alarm_flag == 1)
         return 1;
@@ -110,7 +112,10 @@ unsigned char calculateBCC2(unsigned char *message, int size)
     int i = 1;
 
     for(; i < size; i++)
+    {
+    
         bcc2 ^= message[i];
+    }
 
     return bcc2;
 }

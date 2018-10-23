@@ -199,15 +199,13 @@ int main(int argc, char** argv)
     if(llwrite(fd, start, 0) == 2) //ERROR
       return -1;
 
-    printf("after1llwrite\n");
     int flag = 1;
-    int c = 0;
+
     while(offsetFile != fileSize)
     {
         unsigned char* package = dataPackage(fileContent, &offsetFile, fileSize);
 
         flag = llwrite(fd, package,flag);
-        printf("%d\n", c++);
         if(flag == 2)//ERROR
           return -1;
     }
