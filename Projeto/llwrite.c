@@ -23,14 +23,14 @@ int llwrite(int fd, unsigned char* package, int flag)
         disableAlarm();
 
         write_message(fd, message, 5 + char_count);
-        int k = 0;
-        
+      //  printf("aftwrite\n");
+
         if(read_message(fd, buf) == 0)
         {
-            printf("has\n%x\n",parseMessageType(buf));
+          //  printf("has\n%x\n",parseMessageType(buf));
           if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
            {
-             printf("denttro\n");
+             printf("sucesso\n");
             break;
            }
         }

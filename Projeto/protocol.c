@@ -19,7 +19,7 @@ int read_message(int fd, unsigned char buf[])
 
     int res;
     unsigned char c;
-    printf("rm1\n");
+
     while(alarm_flag != 1 && state != END)
     {
         res = read(fd,&c,1);
@@ -63,8 +63,6 @@ int read_message(int fd, unsigned char buf[])
     		}
     }
 
-    printf("rm2\n");
-
     if(alarm_flag == 1)
         return 1;
 
@@ -73,8 +71,9 @@ int read_message(int fd, unsigned char buf[])
 
 void write_message(int fd, unsigned char buf[], int size)
 {
-    write(fd, buf, size);
+    write(fd,buf,size);
 
+    fflush(NULL);
     //sleep(1);
 }
 
@@ -113,7 +112,7 @@ unsigned char calculateBCC2(unsigned char *message, int size)
 
     for(; i < size; i++)
     {
-    
+
         bcc2 ^= message[i];
     }
 

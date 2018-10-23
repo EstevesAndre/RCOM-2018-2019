@@ -206,6 +206,7 @@ int main(int argc, char** argv)
         unsigned char* package = dataPackage(fileContent, &offsetFile, fileSize);
 
         flag = llwrite(fd, package,flag);
+        
         if(flag == 2)//ERROR
           return -1;
     }
