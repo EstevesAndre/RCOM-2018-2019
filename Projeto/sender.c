@@ -195,10 +195,7 @@ int main(int argc, char** argv)
     off_t offsetFile = 0;
 
     if(llwrite(fd, start, 0,-1) == 2) //ERROR '-1' start package
-    {
-        printf("Failed to send Start package\n");
         return -1;
-    }
 
     int flag = 1;
     int counter = 0;
@@ -211,10 +208,7 @@ int main(int argc, char** argv)
         counter++;
 
         if(flag == 2)//ERROR
-        {
-            printf("Failed to send file on package n.%d\n", counter);
             return -1;
-        }
     }
 
     printf("Finished to send file %s\n", argv[1]);

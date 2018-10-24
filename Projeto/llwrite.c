@@ -28,11 +28,12 @@ int llwrite(int fd, unsigned char* package, int flag, int noPackage)
         {
             if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
             {
-                printf("Success on sending package no %d\n", noPackage);
+                noPackage != -1 ?   printf("Success on sending package no.%d\n", noPackage) : 
+                                    printf("Success on sending Start package\n");
                 break;
             }
             else
-                printf("Failure on sending package no %d, try no%d\n", noPackage,cnt);
+                printf("Failure on sending package no.%d, try no.%d\n", noPackage,cnt + 1);
         }
         cnt++;
     }
