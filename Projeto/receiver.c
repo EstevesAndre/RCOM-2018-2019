@@ -87,8 +87,8 @@ off_t parseMessageStart(unsigned char* message, unsigned char** filename)
     name[j] = '\0';
 
     (*filename) = name;
-    
-    printf("Number of Packages = %d\n", filename_length);
+
+    printf("Number of Packages = %li\n", fileSize / 260 + 1);
     printf("Filename = %s\n", *filename);
 
     return fileSize;
@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 
     int index = 0;
     int counter = 0;
-    
+
     while(index < size_file)
     {
         while((messageSize = llread(fd, flag, &message)) < 0);
@@ -171,8 +171,8 @@ int main(int argc, char** argv)
     }
 
     createFile(fileContent, filename, size_file);
-    
-    printf("Finished receiving file %s\n", *filename);
+
+    printf("Finished receiving file %s\n", filename);
 
     return 0;
 }
