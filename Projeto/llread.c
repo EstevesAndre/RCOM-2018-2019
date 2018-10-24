@@ -45,8 +45,8 @@ int llread(int fd, int flag, unsigned char** message)
     unsigned char rr[6] = {FLAG, A_SENDER, c1, BCC1, FLAG, '\0'};
 
     write_message(fd, rr, 5);
-
-
+    
+    
     return size;
 }
 

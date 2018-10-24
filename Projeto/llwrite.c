@@ -32,9 +32,11 @@ int llwrite(int fd, unsigned char* package, int flag, int noPackage)
                                     printf("Success on sending Start package\n");
                 break;
             }
-            else
-                printf("Failure on sending package no.%d, try no.%d\n", noPackage,cnt + 1);
         }
+            
+        noPackage != -1 ?   printf("Failure on sending package no.%d, try no.%d\n", noPackage,cnt + 1) : 
+                            printf("Failure on sending Start package, try no.%d\n", cnt + 1);
+
         cnt++;
     }
 

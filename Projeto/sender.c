@@ -198,7 +198,7 @@ int main(int argc, char** argv)
         return -1;
 
     int flag = 1;
-    int counter = 0;
+    int counter = 1;
 
     while(offsetFile != fileSize)
     {
