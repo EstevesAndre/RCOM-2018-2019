@@ -69,8 +69,8 @@ unsigned char *readFile(unsigned char* filename, off_t *sizeFile)
 
     if( (file = fopen((char*)filename, "rb")) == NULL)
     {
-      perror("Error reading file.");
-      exit(-1);
+        perror("Error reading file.\n");
+        exit(-1);
     }
 
     stat((char*)filename, &fileInfo);
@@ -172,20 +172,18 @@ int main(int argc, char** argv)
 {
     if(argc != 2)
     {
-      printf("Usage: %s <filename>\n", argv[0]);
-      return -1;
+        printf("Usage: %s <filename>\n", argv[0]);
+        return -1;
     }
 
     int fd = setup();
 
     if(llopen(fd, SENDER) == 0)
-    {
-      printf("Connected\n");
-    }
+        printf("Connected\n");
     else
     {
-      printf("Failed\n");
-      return -2;
+        printf("Failed\n");
+        return -2;
     }
 
     //Opens the file to be sent
@@ -197,18 +195,29 @@ int main(int argc, char** argv)
     off_t offsetFile = 0;
 
     if(llwrite(fd, start, 0) == 2) //ERROR
-      return -1;
+    {
+        printf("Failed to send Start package\n");
+        return -1;
+    }
 
     int flag = 1;
+    int counter = 0;
 
     while(offsetFile != fileSize)
     {
         unsigned char* package = dataPackage(fileContent, &offsetFile, fileSize);
 
         flag = llwrite(fd, package,flag);
+        counter++;
 
         if(flag == 2)//ERROR
-          return -1;
+        {
+            printf("Failed to send file on package n.%d\n", counter);
+            return -1;
+        }
     }
+
+    printf("Finished to send file %s", argv[1]);
+
     return 0;
 }

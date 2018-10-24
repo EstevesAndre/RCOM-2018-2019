@@ -87,8 +87,9 @@ off_t parseMessageStart(unsigned char* message, unsigned char** filename)
     name[j] = '\0';
 
     (*filename) = name;
-    printf("%d\n", filename_length);
-    printf("%s\n", *filename);
+    
+    printf("Number of Packages = %d\n", filename_length);
+    printf("Filename = %s\n", *filename);
 
     return fileSize;
 }
@@ -97,15 +98,12 @@ int parseMessageData(unsigned char* message, int messageSize, unsigned char** da
 {
     int length = message[2] * 256 + message[3];
 
-    //printf("PACKET LENGTH %d\n", length);
-
     unsigned char * dataAux = malloc(length * sizeof(unsigned char));
 
     int i = 4;
     for(; i < length + 4; i++)
     {
         dataAux[i-4] = message[i];
-      //printf("%x\n", dataAux[i-4]);
     }
 
     (*data) = dataAux;
@@ -137,12 +135,11 @@ int main(int argc, char** argv)
     int fd = setup();
 
     if(llopen(fd, RECEIVER) == 0)
-    {
-      printf("Connected\n");
-    }
+        printf("Connected\n");
     else
     {
-      printf("Failed\n");
+        printf("Failed\n");
+        return -2;
     }
 
     // Initial flag for start package
