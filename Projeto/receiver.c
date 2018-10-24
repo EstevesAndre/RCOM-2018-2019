@@ -174,5 +174,5 @@ int main(int argc, char** argv)
 
     printf("Finished receiving file %s\n", filename);
 
-    return 0;
+    return llclose(fd,RECEIVER);
 }

@@ -213,5 +213,5 @@ int main(int argc, char** argv)
 
     printf("Finished to send file %s\n", argv[1]);
 
-    return 0;
+    return llclose(fd,SENDER);
 }
