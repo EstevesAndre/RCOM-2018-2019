@@ -1,6 +1,7 @@
 #include "protocol.h"
 #include "llopen.h"
 #include "llwrite.h"
+#include "llclose.h"
 
 #define BAUDRATE B38400
 #define MODEMDEVICE "/dev/ttyS1"
