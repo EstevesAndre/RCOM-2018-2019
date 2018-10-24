@@ -10,6 +10,7 @@ int llread(int fd, int flag, unsigned char** message)
         if(read_message(fd, buf) == 0) break;
     }
 
+
     if(buf[2] != (unsigned char)(flag * 64))
     {
         unsigned char c1;

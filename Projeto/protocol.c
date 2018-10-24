@@ -75,12 +75,12 @@ void write_message(int fd, unsigned char buf[], int size)
     write(fd,buf,size);
 
     fflush(NULL);
-    //sleep(1);
 }
 
 unsigned char parseMessageType(unsigned char buf[])
 {
     printf("%x\n",buf[2]);
+    
     if(buf[0] != FLAG)
         return ERROR;
 

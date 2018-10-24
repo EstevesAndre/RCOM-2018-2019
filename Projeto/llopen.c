@@ -48,19 +48,13 @@ int llopen_Sender(int fd)
     }
 
     if(cnt == 3)
-    {
         return 2; //no confirmation recieved
-    }
 
     // analisar receiver info
     if(parseMessageType(buf) == C_UA)
-    {
         return 0;
-    }
     else
-    {
         return -6;
-    }
 }
 
 int llopen(int fd, int flag)

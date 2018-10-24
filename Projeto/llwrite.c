@@ -22,12 +22,10 @@ int llwrite(int fd, unsigned char* package, int flag)
         alarm(3);
         disableAlarm();
 
-        write_message(fd, message, 5 + char_count);
-      //  printf("aftwrite\n");
+        write_message(fd, message, 6 + char_count);
 
         if(read_message(fd, buf) == 0)
         {
-          //  printf("has\n%x\n",parseMessageType(buf));
           if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
            {
              printf("sucesso\n");
