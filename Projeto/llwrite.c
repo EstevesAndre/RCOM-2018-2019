@@ -1,7 +1,7 @@
 #include "protocol.h"
 #include "llwrite.h"
 
-int llwrite(int fd, unsigned char* package, int flag)
+int llwrite(int fd, unsigned char* package, int flag, int noPackage)
 {
     unsigned char BCC2;
     if(package[0] == C2_DATA)
@@ -26,24 +26,23 @@ int llwrite(int fd, unsigned char* package, int flag)
 
         if(read_message(fd, buf) == 0)
         {
-          if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
-           {
-             printf("sucesso\n");
-            break;
-          }
+            if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
+            {
+                printf("Success on sending package no %d\n", noPackage);
+                break;
+            }
+            else
+                printf("Failure on sending package no %d, try no%d\n", noPackage,cnt);
         }
-
         cnt++;
     }
 
 
     if(cnt == 3)
-    {
         return 2; //no confirmation recieved
-    }
 
     if(flag == 1)
-      return 0;
+        return 0;
     else
-      return 1;
+        return 1;
 }

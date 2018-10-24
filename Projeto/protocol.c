@@ -79,8 +79,6 @@ void write_message(int fd, unsigned char buf[], int size)
 
 unsigned char parseMessageType(unsigned char buf[])
 {
-    printf("%x\n",buf[2]);
-    
     if(buf[0] != FLAG)
         return ERROR;
 

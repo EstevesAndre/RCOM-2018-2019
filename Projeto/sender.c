@@ -194,7 +194,7 @@ int main(int argc, char** argv)
     unsigned char* start = controlPackage(C2_START, (unsigned char *)argv[1], fileSize);
     off_t offsetFile = 0;
 
-    if(llwrite(fd, start, 0) == 2) //ERROR
+    if(llwrite(fd, start, 0,-1) == 2) //ERROR '-1' start package
     {
         printf("Failed to send Start package\n");
         return -1;
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
     {
         unsigned char* package = dataPackage(fileContent, &offsetFile, fileSize);
 
-        flag = llwrite(fd, package,flag);
+        flag = llwrite(fd, package,flag, counter);
         counter++;
 
         if(flag == 2)//ERROR
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
         }
     }
 
-    printf("Finished to send file %s", argv[1]);
+    printf("Finished to send file %s\n", argv[1]);
 
     return 0;
 }

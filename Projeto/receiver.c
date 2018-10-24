@@ -156,7 +156,8 @@ int main(int argc, char** argv)
     unsigned char * fileContent = malloc(size_file * sizeof(unsigned char));
 
     int index = 0;
-
+    int counter = 0;
+    
     while(index < size_file)
     {
         while((messageSize = llread(fd, flag, &message)) < 0);
@@ -164,11 +165,14 @@ int main(int argc, char** argv)
 
         unsigned char * data;
         int sizeData = parseMessageData(message, messageSize, &data);
-
+        counter++;
         saveData(fileContent, data, sizeData, &index);
+        printf("Received package no.%d\n",counter);
     }
 
     createFile(fileContent, filename, size_file);
+    
+    printf("Finished receiving file %s\n", *filename);
 
     return 0;
 }
