@@ -46,7 +46,6 @@ int llread(int fd, int flag, unsigned char** message)
 
     write_message(fd, rr, 5);
     
-    
     return size;
 }
 
@@ -56,9 +55,7 @@ int checkBCC2(unsigned char * package, int size)
     unsigned char check = package[0];
     
     for(; i < size - 2; i++)
-    {
         check ^= package[i];
-    }
 
     if(check == package[size - 2])
         return 0;

@@ -21,7 +21,6 @@ int setup()
     because we don't want to get killed if linenoise sends CTRL-C.
   */
 
-
     fd = open("/dev/ttyS0", O_RDWR | O_NOCTTY );
     fflush(NULL);
 
@@ -69,9 +68,7 @@ off_t parseMessageStart(unsigned char* message, unsigned char** filename)
 
     int i = 1;
     for(; i <= file_size_length; i++)
-    {
         fileSize += message[2+i] * pow(256,file_size_length - i);
-    }
 
     int filename_length = message[2+i+1];
 
@@ -80,9 +77,7 @@ off_t parseMessageStart(unsigned char* message, unsigned char** filename)
     int k = i + 4;
     int j = 0;
     for(; k < filename_length + i + 4; k++, j++)
-    {
         name[j] = message[k];
-    }
 
     name[j] = '\0';
 
@@ -102,9 +97,7 @@ int parseMessageData(unsigned char* message, int messageSize, unsigned char** da
 
     int i = 4;
     for(; i < length + 4; i++)
-    {
         dataAux[i-4] = message[i];
-    }
 
     (*data) = dataAux;
 
@@ -115,9 +108,7 @@ void saveData(unsigned char* fileContent, unsigned char* data, int sizeData, int
 {
     int i = 0;
     for(; i < sizeData; i++)
-    {
         fileContent[(*index) + i] = data[i];
-    }
 
     (*index) += sizeData;
 }
@@ -166,7 +157,9 @@ int main(int argc, char** argv)
         unsigned char * data;
         int sizeData = parseMessageData(message, messageSize, &data);
         counter++;
+
         saveData(fileContent, data, sizeData, &index);
+
         printf("Received package no.%d\n",counter);
     }
 

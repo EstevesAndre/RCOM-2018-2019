@@ -67,6 +67,5 @@ int llclose_sender(int fd)
         return 0;
     }
         
-        
     return -5;       
 }

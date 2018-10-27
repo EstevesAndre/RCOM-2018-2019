@@ -10,7 +10,6 @@
 #define TRUE 1
 
 unsigned char n_seq = 0;
-
 volatile int STOP=FALSE;
 
 int setup()
@@ -106,7 +105,9 @@ unsigned char* controlPackage(unsigned char c2, const unsigned char* filename, c
 
     res = sizeFile / 256;
     quo = sizeFile % 256;
+
     int i = 3;
+    
     if(res == 0) data[i] = quo;
     else data[i] = res;
 
@@ -124,12 +125,9 @@ unsigned char* controlPackage(unsigned char c2, const unsigned char* filename, c
 
     i+=3;
     for(count = 0; count < strlen((char*)filename); i++, count++)
-    {
         data[i] = filename[count];
-    }
 
     return data;
-
 }
 
 unsigned char* dataPackage(unsigned char * content, off_t *offset, off_t end_offset)
@@ -144,10 +142,8 @@ unsigned char* dataPackage(unsigned char * content, off_t *offset, off_t end_off
     off_t chars_to_send = end_offset - *offset;
 
     if (end_offset - *offset > 260)
-    {
         chars_to_send = 260;
-    }
-
+    
     if(chars_to_send > 255)
     {
         package[2] = 1;
@@ -161,13 +157,10 @@ unsigned char* dataPackage(unsigned char * content, off_t *offset, off_t end_off
 
     int i = 0;
     for(; i < chars_to_send; i++, (*offset)++)
-    {
         package[4+i] = content[*offset];
-    }
 
     return package;
 }
-
 
 int main(int argc, char** argv)
 {

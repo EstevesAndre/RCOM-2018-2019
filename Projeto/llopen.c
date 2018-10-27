@@ -60,13 +60,9 @@ int llopen_Sender(int fd)
 int llopen(int fd, int flag)
 {
     if(flag == SENDER)
-    {
         return llopen_Sender(fd);
-    }
     else if (flag == RECEIVER)
-    {
         return llopen_Receiver(fd);
-    }
 
     return -1;
 }

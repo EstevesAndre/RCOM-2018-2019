@@ -54,9 +54,7 @@ int read_message(int fd, unsigned char buf[])
     					      buf[pos] = c;
     		            pos++;
     		            if(c == FLAG)
-    		            {
     		                state = END;
-    		            }
     		            break;
     		        }
     		        default: state = END;
@@ -73,7 +71,6 @@ int read_message(int fd, unsigned char buf[])
 void write_message(int fd, unsigned char buf[], int size)
 {
     write(fd,buf,size);
-
     fflush(NULL);
 }
 
@@ -111,9 +108,7 @@ unsigned char calculateBCC2(unsigned char *message, int size)
     int i = 1;
 
     for(; i < size; i++)
-    {
         bcc2 ^= message[i];
-    }
 
     return bcc2;
 }
@@ -121,9 +116,7 @@ unsigned char calculateBCC2(unsigned char *message, int size)
 unsigned char* stuffing_data_package(const unsigned char* package, const unsigned char BCC2, int* char_count)
 {
     unsigned char* stuff = (unsigned char *)malloc(265 * 2 * sizeof(unsigned char));
-
     *char_count = 1;
-
     stuff[0] = package[0];
 
     if(package[1] == 0x7E)
@@ -137,9 +130,7 @@ unsigned char* stuffing_data_package(const unsigned char* package, const unsigne
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = package[1];
-    }
 
     stuff[(*char_count)++] = package[2];
 
@@ -154,9 +145,7 @@ unsigned char* stuffing_data_package(const unsigned char* package, const unsigne
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = package[3];
-    }
 
     int count = 4;
     int i = package[2] * 256 + package[3];
@@ -174,9 +163,7 @@ unsigned char* stuffing_data_package(const unsigned char* package, const unsigne
             stuff[(*char_count)++] = 0x5D;
         }
         else
-        {
             stuff[(*char_count)++] = package[count];
-        }
     }
 
     if(BCC2 == 0x7E)
@@ -190,9 +177,7 @@ unsigned char* stuffing_data_package(const unsigned char* package, const unsigne
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = BCC2;
-    }
 
     return stuff;
 }
@@ -218,9 +203,7 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = package[1];
-    }
 
     if(package[2] == 0x7E)
     {
@@ -233,9 +216,7 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = package[2];
-    }
 
     int count = 3;
 
@@ -252,9 +233,7 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
             stuff[(*char_count)++] = 0x5D;
         }
         else
-        {
             stuff[(*char_count)++] = package[count];
-        }
     }
 
     if(package[3+size] == 0x7E)
@@ -268,9 +247,7 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = package[3+size];
-    }
 
     if(package[4+size] == 0x7E)
     {
@@ -283,9 +260,7 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = package[4+size];
-    }
 
     count = 5 + size;
     int start_pnt = count;
@@ -304,9 +279,7 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
             stuff[(*char_count)++] = 0x5D;
         }
         else
-        {
             stuff[(*char_count)++] = package[count];
-        }
     }
 
     if(BCC2 == 0x7E)
@@ -320,9 +293,7 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
         stuff[(*char_count)++] = 0x5D;
     }
     else
-    {
         stuff[(*char_count)++] = BCC2;
-    }
 
     return stuff;
 }
@@ -330,13 +301,9 @@ unsigned char* stuffing_control_package(const unsigned char* package, const unsi
 unsigned char* stuffing(const unsigned char* package, const unsigned char BCC2, int* char_count)
 {
     if(package[0] == C2_DATA)
-    {
         return stuffing_data_package(package, BCC2, char_count);
-    }
     else
-    {
         return stuffing_control_package(package, BCC2, char_count);
-    }
 }
 
 unsigned char* heading(unsigned char * stuff, int count, int flag)
@@ -351,9 +318,8 @@ unsigned char* heading(unsigned char * stuff, int count, int flag)
     int i = 4;
 
     for(; i < 5 + count; i++)
-    {
         message[i] = stuff[i - 4];
-    }
+
 
     message[i] = FLAG;
 
