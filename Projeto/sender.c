@@ -79,7 +79,7 @@ unsigned char *readFile(unsigned char* filename, off_t *sizeFile)
     fileContent = (unsigned char *)malloc(fileInfo.st_size);
 
     fread(fileContent, sizeof(unsigned char), fileInfo.st_size, file);
-    
+
     return fileContent;
 }
 
@@ -191,8 +191,6 @@ int main(int argc, char** argv)
     if(llwrite(fd, start, 0,-1) == 2) //ERROR '-1' start package
         return -1;
 
-
-    free(start);
     int flag = 1;
     int counter = 1;
 
@@ -202,8 +200,6 @@ int main(int argc, char** argv)
 
         flag = llwrite(fd, package,flag, counter);
         counter++;
-
-        free(package);
 
         if(flag == 2)//ERROR
             return -1;

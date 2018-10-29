@@ -13,7 +13,7 @@ int llwrite(int fd, unsigned char* package, int flag, int noPackage)
     unsigned char * stuff = stuffing(package, BCC2, &char_count);
 
     unsigned char* message = heading(stuff, char_count, flag);
-    free(stuff);
+
     int cnt = 0;
     unsigned char buf[255];
 
@@ -23,7 +23,7 @@ int llwrite(int fd, unsigned char* package, int flag, int noPackage)
         disableAlarm();
 
         write_message(fd, message, 6 + char_count);
-        free(message);
+
         if(read_message(fd, buf) == 0)
         {
             if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
