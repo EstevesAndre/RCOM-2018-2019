@@ -159,12 +159,12 @@ int main(int argc, char** argv)
         counter++;
 
         saveData(fileContent, data, sizeData, &index);
-
+        free(data);
         printf("Received package no.%d\n",counter);
     }
 
     createFile(fileContent, filename, size_file);
-
+    free(fileContent);
     printf("Finished receiving file %s\n", filename);
 
     return llclose(fd,RECEIVER);
