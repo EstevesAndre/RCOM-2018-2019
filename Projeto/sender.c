@@ -188,6 +188,8 @@ int main(int argc, char** argv)
     unsigned char* start = controlPackage(C2_START, (unsigned char *)argv[1], fileSize);
     off_t offsetFile = 0;
 
+    float start_time = (float)clock() / CLOCKS_PER_SEC;
+
     if(llwrite(fd, start, 0,-1) == 2) //ERROR '-1' start package
         return -1;
 
@@ -205,7 +207,9 @@ int main(int argc, char** argv)
             return -1;
     }
 
-    printf("Finished to send file %s\n", argv[1]);
+    float end_time = (float)clock() / CLOCKS_PER_SEC;
+
+    printf("Finished to send file %s - Transfer time: %f seconds\n", argv[1], (end_time - start_time)*1000);
 
     return llclose(fd,SENDER);
 }

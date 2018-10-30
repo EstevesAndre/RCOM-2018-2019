@@ -3,6 +3,8 @@
 
 int llwrite(int fd, unsigned char* package, int flag, int noPackage)
 {
+    float start_time = (float)clock() / CLOCKS_PER_SEC;
+
     unsigned char BCC2;
     if(package[0] == C2_DATA)
         BCC2 = calculateBCC2(package, 4 + package[2]*256 + package[3]);
@@ -28,8 +30,9 @@ int llwrite(int fd, unsigned char* package, int flag, int noPackage)
         {
             if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
             {
-                noPackage != -1 ?   printf("Success on sending package no.%d\n", noPackage) :
-                                    printf("Success on sending Start package\n");
+                float end_time = (float)clock() / CLOCKS_PER_SEC;
+                noPackage != -1 ?   printf("Success on sending package no.%d - Transfer time: %f seconds\n", noPackage, (end_time - start_time) * 1000) :
+                                    printf("Success on sending Start package - Transfer time: %f seconds\n", (end_time - start_time) * 1000);
                 break;
             }
         }
