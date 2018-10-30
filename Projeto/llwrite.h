@@ -1,1 +1,1 @@
-int llwrite(int fd, unsigned char* package, int flag, int noPackage, FILE* fd_packageTime);
+int llwrite(int fd, unsigned char* package, int flag, int noPackage, FILE* fileTimePackages);
