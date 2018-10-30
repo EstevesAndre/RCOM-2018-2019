@@ -1,7 +1,7 @@
 #include "protocol.h"
 #include "llwrite.h"
 
-int llwrite(int fd, unsigned char* package, int flag, int noPackage)
+int llwrite(int fd, unsigned char* package, int flag, int noPackage, FILE* fileTimePackages)
 {
     float start_time = (float)clock() / CLOCKS_PER_SEC;
 
@@ -31,6 +31,8 @@ int llwrite(int fd, unsigned char* package, int flag, int noPackage)
             if((parseMessageType(buf) == C_RR0 && flag == 1) || (parseMessageType(buf) == C_RR1 && flag == 0))
             {
                 float end_time = (float)clock() / CLOCKS_PER_SEC;
+                fprintf(fileTimePackages, "%f\n", (end_time - start_time)*1000);
+                
                 noPackage != -1 ?   printf("Success on sending package no.%d - Transfer time: %f seconds\n", noPackage, (end_time - start_time) * 1000) :
                                     printf("Success on sending Start package - Transfer time: %f seconds\n", (end_time - start_time) * 1000);
                 break;

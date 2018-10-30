@@ -180,6 +180,12 @@ int main(int argc, char** argv)
         return -2;
     }
 
+    int fd_time_packages = open("packageTime.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
+    int fd_time_taken = open("fileTime.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
+
+    FILE *fileTimeTaken = fdopen(fd_time_taken, "a");
+    FILE *fileTimePackages = fdopen(fd_time_packages, "a");
+
     //Opens the file to be sent
     off_t fileSize;
     unsigned char* fileContent;
@@ -190,7 +196,7 @@ int main(int argc, char** argv)
 
     float start_time = (float)clock() / CLOCKS_PER_SEC;
 
-    if(llwrite(fd, start, 0,-1) == 2) //ERROR '-1' start package
+    if(llwrite(fd, start, 0,-1, fileTimePackages) == 2) //ERROR '-1' start package
         return -1;
 
     int flag = 1;
@@ -200,7 +206,7 @@ int main(int argc, char** argv)
     {
         unsigned char* package = dataPackage(fileContent, &offsetFile, fileSize);
 
-        flag = llwrite(fd, package,flag, counter);
+        flag = llwrite(fd, package,flag, counter,fileTimePackages);
         counter++;
 
         if(flag == 2)//ERROR
@@ -210,6 +216,8 @@ int main(int argc, char** argv)
     float end_time = (float)clock() / CLOCKS_PER_SEC;
 
     printf("Finished to send file %s - Transfer time: %f seconds\n", argv[1], (end_time - start_time)*1000);
+
+    fprintf(fileTimeTaken, "%f\n", (end_time - start_time)*1000);
 
     return llclose(fd,SENDER);
 }
