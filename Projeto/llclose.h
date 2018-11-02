@@ -1,5 +1,5 @@
 int llclose(int fd, int flag);
 
-int llclose_sender(int fd);
+int llclose_Sender(int fd);
 
-int llclose_receiver(int fd);
+int llclose_Receiver(int fd);

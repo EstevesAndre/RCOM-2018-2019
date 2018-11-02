@@ -4,14 +4,14 @@
 int llclose(int fd, int flag)
 {
     if(flag == RECEIVER)
-        return llclose_receiver(fd);
+        return llclose_Receiver(fd);
     else
-        return llclose_sender(fd);  
+        return llclose_Sender(fd);  
 
     return -1;
 }
 
-int llclose_receiver(int fd)
+int llclose_Receiver(int fd)
 {
     unsigned char BCC1 = A_RECEIVER ^ C_DISC;
     unsigned char disc[6] = {FLAG, A_RECEIVER, C_DISC, BCC1, FLAG, '\0'};
@@ -43,7 +43,7 @@ int llclose_receiver(int fd)
     return -6;
 }
 
-int llclose_sender(int fd)
+int llclose_Sender(int fd)
 {
     unsigned char BCC1 = A_SENDER ^ C_DISC;
     unsigned char disc[6] = {FLAG, A_SENDER, C_DISC, BCC1, FLAG, '\0'};
