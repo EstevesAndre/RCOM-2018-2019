@@ -21,9 +21,9 @@ int read_message(int fd, unsigned char buf[])
     int res;
     unsigned char c;
 
-    int erro = 20;
+/*    int erro = 20;
     int r = rand() % 100;
-    printf("%d\n",r);
+    printf("%d\n",r);*/
     int x = 0;
     while(alarm_flag != 1 && state != END)
     {
@@ -32,12 +32,12 @@ int read_message(int fd, unsigned char buf[])
     		if(res > 0)
     		{
           x++;
-            if(r < erro && x != 0)
+          /*  if(r < erro && x != 0)
             {
               buf[pos] = FLAG;
               pos++;
               state = END;
-}
+}*/
     		    switch(state)
     		    {
     		        case BEGIN:
