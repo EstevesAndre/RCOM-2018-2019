@@ -3,7 +3,7 @@
 #include "llread.h"
 #include "llclose.h"
 
-#define BAUDRATE B38400
+#define BAUDRATE B19200
 #define MODEMDEVICE "/dev/ttyS1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0

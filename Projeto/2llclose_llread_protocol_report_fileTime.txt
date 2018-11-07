@@ -1,0 +1,9 @@
+0.592000 llclose.c
+0.712000 llread.c
+2.671000 protocol.c
+0.148000 makefile
+1.766000 sender
+1.518000 receiver
+3.845000 pinguim
+0.126000 normal_filetime
+2.384000 normal_packagetime

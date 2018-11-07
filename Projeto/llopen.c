@@ -39,11 +39,13 @@ int llopen_Sender(int fd)
     {
         alarm(3);
         disableAlarm();
-
+        printf("1\n" );
         write_message(fd, set, 5);
 
+        printf("2\n" );
         if(read_message(fd, buf) == 0) break;
 
+        printf("3\n" );
         cnt++;
     }
 
