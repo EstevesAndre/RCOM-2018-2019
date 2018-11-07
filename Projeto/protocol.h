@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <math.h>
 #include <strings.h>
+#include <time.h>
 #include "time.h"
 
 #define FLAG 0x7E

@@ -21,6 +21,8 @@ int read_message(int fd, unsigned char buf[])
     int res;
     unsigned char c;
 
+    int erro = 20;
+
     while(alarm_flag != 1 && state != END)
     {
         res = read(fd,&c,1);
@@ -59,6 +61,12 @@ int read_message(int fd, unsigned char buf[])
     		        }
     		        default: state = END;
     		    }
+
+            int r = rand() % 100;
+
+            if(r < erro)
+              state = END;
+
     		}
     }
 
