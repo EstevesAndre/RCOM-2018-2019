@@ -14,8 +14,6 @@ volatile int STOP=FALSE;
 
 int setup()
 {
-    srand(time(NULL));   // Initialization, should only be called once.
-
     int fd;
     struct termios oldtio,newtio;
 
