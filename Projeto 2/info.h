@@ -6,7 +6,7 @@
 #define END 5
 
 struct Info {
-    char host_name[100];
+    char hostname[100];
     char path[150];
     char user[50];
     char password[50];
