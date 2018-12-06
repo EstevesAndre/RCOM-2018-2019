@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <strings.h>
 #include <string.h>
+#include <ctype.h>
 #include "info.h"
 
 int parseInfo(char* cmd, struct Info* info)
@@ -167,6 +168,123 @@ int connectTCP(char* addr, int port)
     return sockfd;
 }
 
+int readResponseCode(int socketfd, char *responseCode)
+{
+	int state = BEGIN;
+	int index = 0;
+	char c;
+
+	while (state != END)
+	{	
+		read(socketfd, &c, 1);
+		switch(state)
+		{
+            case BEGIN:
+            {
+                if(c == ' ')
+                {
+                    if (index != 3)
+                    {
+                        return -1;
+                    }
+                    index = 0;
+                    state = CLEAR_LINE;
+                }
+                else if(c == '-')
+                {
+                    state = MULTIPLE_LINE;
+                    index = 0;
+                }
+                else if(isdigit(c))
+                {
+                    responseCode[index++] = c;
+                }
+                break;
+            }
+            case CLEAR_LINE:
+            {
+                if (c == '\n')
+                {
+                    state = END;
+                }
+                break;
+            }
+            case MULTIPLE_LINE:
+            {
+                if(c == responseCode[index])
+                {
+                    index++;
+                }
+                else if(index == 3 && c == ' ')
+                {
+                    state = CLEAR_LINE;
+                }
+                else if(index ==3  && c == '-')
+                {
+                    index = 0; 
+                }
+                break;
+            }
+            case END:
+            {
+                return 0;
+                break;
+            }
+            default: return -1;
+        }
+    }
+    return 0;
+}
+
+void writeCmd(int fd, char* cmd, char* info)
+{
+    write(fd, cmd, strlen(cmd));
+	write(fd, info, strlen(info));
+	write(fd, "\n", 1);
+}
+
+int writeCommand(int fd, char* cmd, char* info)
+{
+    char code[3];
+    writeCmd(fd, cmd, info);
+    readResponseCode(fd, code);
+    int answer = code[0] - '0';
+
+    while(1)
+    {
+        switch(answer)
+        {
+            case 1:
+            {
+                readResponseCode(fd, code);
+                break;
+            }
+            case 2:
+                return 0;
+            case 3:
+                return 1;
+            case 4:
+            {
+                writeCmd(fd, cmd, info);
+                break;
+            }
+            case 5:
+                return -1;
+        }
+    }
+}
+
+int sendLoginInfo(struct Info* info, int sockfd)
+{
+    if(writeCommand(sockfd, CMD_USER, info->user) != 1)
+        return -1;
+    
+    if(writeCommand(sockfd, CMD_PASS, info->password) != 0)
+        return -1;
+
+    return 0;
+}
+
 int main(int argc, char** argv)
 {
     if(argc != 2)
@@ -174,6 +292,8 @@ int main(int argc, char** argv)
         printf("Usage: %s ftp://[<user>:<password>@]<host>/<url-path>\n", argv[0]);
         return -1;
     }
+
+    printf("%s > Parsing argument...\n", argv[0]);
 
     struct Info info;
 
@@ -185,6 +305,15 @@ int main(int argc, char** argv)
 
     parseFilename(&info);
 
+    printf("%s > Argument parsed successfully\n\n", argv[0]);
+    printf("Username: %s\n", info.user);
+    printf("Password: %s\n", info.password);     
+    printf("Path: %s\n", info.path);
+    printf("Filename: %s\n", info.filename);
+    printf("Hostname: %s\n\n", info.hostname);
+
+    printf("%s > Fetching host info...\n", argv[0]);
+
     struct hostent *host;
 
     if(getHostInfo(info.hostname, &host) != 0)
@@ -195,6 +324,12 @@ int main(int argc, char** argv)
 
     char* addr_str = inet_ntoa(*((struct in_addr *)host->h_addr));
 
+    printf("%s > Host info fetched successfully\n\n", argv[0]);
+    printf("Full Hostname: %s\n", host->h_name);
+    printf("Host IP: %s\n\n", addr_str); 
+
+    printf("%s > Establishing connection...\n", argv[0]);
+
     int sockfd = connectTCP(addr_str, PORT);
 
     if(sockfd < 0)
@@ -203,12 +338,31 @@ int main(int argc, char** argv)
         return -4;
     }
 
-    printf("Username: %s\n", info.user);
-    printf("Password: %s\n", info.password);     
-    printf("Path: %s\n", info.path);
-    printf("Filename: %s\n", info.filename);
-    printf("Hostname: %s\n", info.hostname);     
-    printf("Full Hostname: %s\n", host->h_name);
-    printf("Host IP: %s\n", addr_str);     
+	char code[3];
+
+    if(readResponseCode(sockfd, code) != 0)
+    {
+        printf("Error reading server response code\n");
+        return -5;
+    }
+
+    if(code[0] != '2')
+    {
+        printf("Error: server responded with code %s\n", code);
+        return -6;
+    }
+
+    printf("%s > Connection established successfully\n\n", argv[0]);
+
+    printf("%s > Sending login information...\n", argv[0]);
+
+    if(sendLoginInfo(&info, sockfd) != 0)
+    {
+        printf("Error sending login information\n");
+        return -7;
+    }
+
+    printf("%s > Login information successfully sent\n\n", argv[0]);
+
     return 0;
 }
