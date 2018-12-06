@@ -46,7 +46,11 @@ int parseInfo(char* cmd, struct Info* info)
                 c = cmd[i++];
                 if(c != '/')
                     return -2;
-                state = USER;             
+                
+                if(strrchr(cmd, '@') != NULL)
+                    state = USER;             
+                else
+                    state = HOST;
                 break;
             }
             case USER:
@@ -123,6 +127,21 @@ int parseInfo(char* cmd, struct Info* info)
         }
     }
     return 0;
+}
+
+void getUserInfo(struct Info* info)
+{
+    char* buf = malloc(50 * sizeof(char));
+    size_t size = 50;
+    fflush(stdin);
+    printf("\nUsername: ");
+    getline(&buf, &size, stdin);
+    strncpy(info->user, buf, strcspn(buf, "\n"));
+
+    printf("Password: ");
+    getline(&buf, &size, stdin);
+    strncpy(info->password, buf, strcspn(buf, "\n"));
+    printf("\n");
 }
 
 int parseFilename(struct Info* info)
@@ -302,8 +321,11 @@ int main(int argc, char** argv)
         printf("Error parsing client info: %s\n", argv[1]);
         return -2;
     }
-
+    
     parseFilename(&info);
+
+    if(info.user[0] == 0)
+        getUserInfo(&info);
 
     printf("%s > Argument parsed successfully\n\n", argv[0]);
     printf("Username: %s\n", info.user);
