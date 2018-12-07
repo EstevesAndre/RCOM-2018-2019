@@ -275,6 +275,8 @@ int writeCommand(int fd, char* cmd, char* info)
         {
             case 1:
             {
+                if(strcmp(cmd, "retr ")==0)
+                    return 2;
                 readResponseCode(fd, code);
                 break;
             }
@@ -300,6 +302,104 @@ int sendLoginInfo(struct Info* info, int sockfd)
     
     if(writeCommand(sockfd, CMD_PASS, info->password) != 0)
         return -1;
+
+    return 0;
+}
+
+int getServerPort(int sockfd)
+{
+    writeCmd(sockfd, CMD_PASSIVE, "");
+
+    int state = 0;
+	int index = 0;
+	char msg1[4];
+	memset(msg1, 0, 4);
+	char msg2[4];
+	memset(msg2, 0, 4);
+
+	char c;
+
+	while (state != 7)
+	{
+		read(sockfd, &c, 1);
+		switch (state)
+		{
+		case 0:
+        {
+			if (c == ' ')
+			{
+				if (index != 3)
+					return -1;
+				index = 0;
+				state = 1;
+			}
+			else
+			{
+				index++;
+			}
+			break;
+        }
+		case 5:
+        {
+			if (c == ',')
+			{
+				index = 0;
+				state++;
+			}
+			else
+			{
+				msg1[index] = c;
+				index++;
+			}
+			break;
+        }
+		case 6:
+        {
+			if (c == ')')
+			{
+				state++;
+			}
+			else
+			{
+				msg2[index] = c;
+				index++;
+			}
+			break;
+        }
+		default:
+        {
+			if (c == ',')
+			{
+				state++;
+			}
+			break;
+        }
+		}
+	}
+
+	int b1 = atoi(msg1);
+	int b2 = atoi(msg2);
+	return (b1 * 256 + b2);
+}
+
+int retrieveFile(struct Info* info, int sockfd, int serverfd)
+{
+    if(writeCommand(sockfd, CMD_RETRIEVE, info->path) != 2)
+        return -1;
+    
+    FILE *file = fopen(info->filename, "wb+");
+
+	char buffer[1024];
+ 	int bytes;
+
+    bytes = read(serverfd, buffer, 1024);
+
+ 	while (bytes > 0) {
+    	bytes = fwrite(buffer, bytes, 1, file);
+        bytes = read(serverfd, buffer, 1024);
+    }
+
+  	fclose(file);
 
     return 0;
 }
@@ -350,7 +450,7 @@ int main(int argc, char** argv)
     printf("Full Hostname: %s\n", host->h_name);
     printf("Host IP: %s\n\n", addr_str); 
 
-    printf("%s > Establishing connection...\n", argv[0]);
+    printf("%s > Establishing connection to host...\n", argv[0]);
 
     int sockfd = connectTCP(addr_str, PORT);
 
@@ -374,7 +474,7 @@ int main(int argc, char** argv)
         return -6;
     }
 
-    printf("%s > Connection established successfully\n\n", argv[0]);
+    printf("%s > Connection to host established successfully\n\n", argv[0]);
 
     printf("%s > Sending login information...\n", argv[0]);
 
@@ -385,6 +485,46 @@ int main(int argc, char** argv)
     }
 
     printf("%s > Login information successfully sent\n\n", argv[0]);
+
+    printf("%s > Fetching server port...\n", argv[0]);
+
+    int server_port = getServerPort(sockfd);
+
+    if(server_port < 0)
+    {
+        printf("Error fetching server port\n");
+        return -8;
+    }
+
+    printf("%s > Server port fetched successfully\n\n", argv[0]);
+    printf("Server port: %d\n\n", server_port);
+
+    printf("%s > Establishing connection to server...\n", argv[0]);
+
+    int serverfd = connectTCP(addr_str, server_port);
+
+    if(serverfd < 0)
+    {
+        printf("Error connecting to IP %s using port %d\n", addr_str, PORT);
+        return -4;
+    }
+
+    printf("%s > Connection to server established successfully\n\n", argv[0]);
+
+    printf("%s > Retreiving file...\n", argv[0]);
+
+    if(retrieveFile(&info, sockfd, serverfd) < 0)
+    {
+        printf("Error retreiving file: %s\n", info.filename);
+        return -9;
+    }
+
+    printf("%s > File retrieved successfully\n\n", argv[0]);
+
+    printf("%s > Closing...\n", argv[0]);
+
+    close(sockfd);
+	close(serverfd);
 
     return 0;
 }

@@ -19,6 +19,7 @@
 #define CMD_USER "user "
 #define CMD_PASS "pass "
 #define CMD_PASSIVE "pasv"
+#define CMD_RETRIEVE "retr "
 
 struct Info {
     char hostname[100];
