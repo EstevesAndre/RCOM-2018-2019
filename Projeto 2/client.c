@@ -12,6 +12,22 @@
 #include <ctype.h>
 #include "info.h"
 
+/**
+ * @brief Parses user information from argument input of user
+ * 
+ * Implements a state machine to parse user information
+ * 
+ * States:
+ *  - BEGIN - reads start section ftp://
+ *  - USER - reads user username (optional field)
+ *  - PASSWORD - reads user password (optional field)
+ *  - HOST - reads host name
+ *  - PATH - reads file saving path
+ * 
+ * @param cmd string containing user input argument
+ * @param info struct where user info will be saved on
+ * @return 0 on success, non-zero otherwise
+ */
 int parseInfo(char* cmd, struct Info* info)
 {
     int state = BEGIN;
@@ -129,6 +145,14 @@ int parseInfo(char* cmd, struct Info* info)
     return 0;
 }
 
+/**
+ * @brief Gets username and password from user
+ * 
+ * This function is only called if user did not fill the optional
+ * fields username and password in the command line argument 
+ * 
+ * @param info struct where user info will be saved on
+ */
 void getUserInfo(struct Info* info)
 {
     char* buf = malloc(50 * sizeof(char));
@@ -144,7 +168,14 @@ void getUserInfo(struct Info* info)
     printf("\n");
 }
 
-int parseFilename(struct Info* info)
+/**
+ * @brief Gets filename from the file saving path
+ * 
+ * Isolates the filename from the path so that it can be sent to the server
+ * 
+ * @param info struct where user info will be saved on
+ */
+void parseFilename(struct Info* info)
 {
     char* filename = strrchr(info->path, '/');
 
@@ -156,10 +187,18 @@ int parseFilename(struct Info* info)
     {
         info->filename = (filename + 1);
     }
-
-    return 0;
 }
 
+/**
+ * @brief Gets host informtaion using host name given by uer
+ * 
+ * Gets host information (particullary the IP address), so that a connection
+ * can be established with the server
+ * 
+ * @param hostmane string containing host name
+ * @param h struct where host info will be saved on
+ * @return 0 on success, non-zero otherwise
+ */
 int getHostInfo(char* hostname, struct hostent** h)
 {
     if ((*h=gethostbyname(hostname)) == NULL) 
@@ -168,6 +207,15 @@ int getHostInfo(char* hostname, struct hostent** h)
     return 0;
 }
 
+/**
+ * @brief Establishes a connection with the server
+ * 
+ * Establishes a socket connecting to the server using its IP address
+ * 
+ * @param addr string containing server ip address
+ * @param port port used by server to send and receive information
+ * @return socket file descriptor on success, negative otherwise
+ */
 int connectTCP(char* addr, int port)
 {
     int	sockfd;
@@ -187,6 +235,21 @@ int connectTCP(char* addr, int port)
     return sockfd;
 }
 
+/**
+ * @brief Reads response code from server
+ * 
+ * Implements a state machine to reads response code followed by a user command
+ * Must be called after each command is sent
+ * 
+ * States:
+ *  - BEGIN - reads response code
+ *  - CLEAR_LINE - clears line after code is read
+ *  - MULTIPLE_LINES - reads additional lines if necessary
+ * 
+ * @param socketfd socket file descriptor
+ * @param responseCode string where the response code will be saved
+ * @return 0 on success, non-zero otherwise
+ */
 int readResponseCode(int socketfd, char *responseCode)
 {
 	int state = BEGIN;
@@ -255,6 +318,13 @@ int readResponseCode(int socketfd, char *responseCode)
     return 0;
 }
 
+/**
+ * @brief Writes command to server
+ * 
+ * @param fd socket file descriptor
+ * @param cmd command to be sent
+ * @param info command arguments
+ */
 void writeCmd(int fd, char* cmd, char* info)
 {
     write(fd, cmd, strlen(cmd));
@@ -262,6 +332,26 @@ void writeCmd(int fd, char* cmd, char* info)
 	write(fd, "\n", 1);
 }
 
+/**
+ * @brief Sends command to user and awaits response
+ * 
+ * Sends command to user and acts accordingly to server response
+ * 
+ * Answer values:
+ *  - 1 - sending another response (except for retr command)
+ *  - 2 - success
+ *  - 3 - server needs additional information to proceed
+ *  - 4 - resend command
+ *  - 5 - error
+ * 
+ * @param cmd string containing user input argument
+ * @param info struct where user info will be saved on
+ * @return Success values:
+ * @return 0 - Command accepted
+ * @return 1 - Command accepted - needs additional infromation
+ * @return 2 - Command accepted - file ready for retrieval
+ * @return Negative codes represent error
+ */
 int writeCommand(int fd, char* cmd, char* info)
 {
     char code[3];
@@ -295,6 +385,13 @@ int writeCommand(int fd, char* cmd, char* info)
     }
 }
 
+/**
+ * @brief Sends login info to server
+ * 
+ * @param info struct containing user info
+ * @param sockfd socket file descriptor
+ * @return 0 on success, non-zero otherwise
+ */
 int sendLoginInfo(struct Info* info, int sockfd)
 {
     if(writeCommand(sockfd, CMD_USER, info->user) != 1)
@@ -306,6 +403,15 @@ int sendLoginInfo(struct Info* info, int sockfd)
     return 0;
 }
 
+/**
+ * @brief Gets server port
+ * 
+ * Gets port in which server will communicate using passive mode
+ * Reads both bytes of the port and merges them
+ * 
+ * @param sockfd socket file descriptor
+ * @return server port on success, negative value otherwise
+ */
 int getServerPort(int sockfd)
 {
     writeCmd(sockfd, CMD_PASSIVE, "");
@@ -382,6 +488,16 @@ int getServerPort(int sockfd)
 	return (b1 * 256 + b2);
 }
 
+/**
+ * @brief Gets file from server
+ * 
+ * Gets file information from server and saves it in the specified path
+ * 
+ * @param info struct containing user info
+ * @param sockfd socket file descriptor
+ * @param serverfd passive server file descriptor
+ * @return 0 on success, non-zero otherwise
+ */
 int retrieveFile(struct Info* info, int sockfd, int serverfd)
 {
     if(writeCommand(sockfd, CMD_RETRIEVE, info->path) != 2)

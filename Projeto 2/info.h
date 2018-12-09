@@ -21,6 +21,11 @@
 #define CMD_PASSIVE "pasv"
 #define CMD_RETRIEVE "retr "
 
+/** @name Info Struct*/
+/**@{
+ *
+ * Struct to store user information
+ */
 struct Info {
     char hostname[100];
     char path[150];
@@ -28,3 +33,4 @@ struct Info {
     char user[50];
     char password[50];
 };
+/** @} end of Info Struct */
