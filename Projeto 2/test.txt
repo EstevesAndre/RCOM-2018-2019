@@ -1,3 +1,0 @@
-Test for Issue 'Offer to clean workspace when checkout fails due to dirty working tree'. 
-
-Pull FORCE Feature (changed on github)
